@@ -4,6 +4,21 @@ A local app to generate and play supersudokus on computers and phones: eight var
 
 English is the primary language for this repository, documentation, commits and pull requests. [Documentazione italiana](README.it.md) is available as a secondary translation. The game itself supports both Italian and English.
 
+## Inspiration and credits
+
+This project was inspired by the **Super Sudoku** puzzle shown below: eight overlapping sudokus combining different rule sets. The reference image credits **Carykh** as the creator and **Yessoan** for re-numbering the puzzle. Thank you to both for the puzzle that inspired this app.
+
+The image is included as an attributed reference to their work. This project's code generates fresh puzzles, with configurable variant mixes and repeated types. The reference puzzle itself is not the app's starting game, and this project is an independent implementation.
+
+<details>
+<summary>View the inspiration puzzle — created by Carykh, re-numbered by Yessoan</summary>
+
+![Reference Super Sudoku: eight overlapping variant sudokus, created by Carykh and re-numbered by Yessoan. The original credits are visible at the bottom right.](Supersudoku.webp)
+
+</details>
+
+[Community post sharing the re-numbered Super Sudoku](https://www.reddit.com/r/tenwordsofwisdom/comments/4xckvp/our_local_twower_yessoan_fixed_carys_super_sudoku/).
+
 ## First game
 
 Requires Node.js 22 or later. In a terminal opened in Supersudoku:
@@ -17,6 +32,8 @@ Open **http://localhost:5173**. No dependencies need installing to play. Keep th
 A verified first game is ready immediately. **New game** lets you choose Easy, Medium or Hard, a custom eight-board mix, and an optional game code. Types can repeat: board counts must total 8. Positions are shuffled, and repeated types receive distinct instance numbers.
 
 On a phone, join the same Wi-Fi as the computer and open one of the `Phone (same Wi-Fi)` addresses printed in the terminal. Keep the computer and server on. If Windows requests network access for Node, allow the private network to connect from your phone. The project is not published online.
+
+**Phone use without the computer or terminal is not deployed yet.** The next step is HTTPS hosting and verification of PWA installation on a real phone. The current local-network address still requires the server above.
 
 ## Controls
 
@@ -38,7 +55,7 @@ The generator constructs a solution for the arrangement, creates connected irreg
 
 Generation uses a Web Worker to keep the interface responsive. Cancel without losing your game. Searches have computation limits: if generation fails, retry while preserving the current puzzle. Reproducing a puzzle requires the same game code, board mix, difficulty and generator version.
 
-`Supersudoku.webp` is a reference for the variants and is not served by the app. The generator creates fresh clues and regions rather than transcribing the photo. Image credits: Carykh and Yessoan.
+The reference image is included in the repository documentation; it is not served by the game. The generator creates fresh clues and regions rather than transcribing the photo.
 
 ## Checks and development
 

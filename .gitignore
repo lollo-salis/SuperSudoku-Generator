@@ -9,5 +9,3 @@ dist/
 test-results/
 playwright-report/
 artifacts/
-# Local reference image; the application creates and serves its own puzzles.
-/Supersudoku.webp

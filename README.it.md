@@ -4,6 +4,21 @@ App locale per generare e risolvere supersudoku da PC e telefono: otto varianti,
 
 [English documentation (main)](README.md)
 
+## Ispirazione e crediti
+
+Questo progetto nasce dall'ispirazione del **Super Sudoku** mostrato qui sotto: otto sudoku sovrapposti che combinano regole diverse. L'immagine attribuisce la creazione a **Carykh** e la rinumerazione del rompicapo a **Yessoan**. Grazie a entrambi per il sudoku da cui è nata l'idea di questa app.
+
+L'immagine è inclusa come riferimento al loro lavoro, con i crediti originali. Il codice di questo progetto genera nuovi rompicapi, con composizioni configurabili e tipi ripetuti. Il rompicapo della foto non è la partita iniziale dell'app: questa è un'implementazione indipendente.
+
+<details>
+<summary>Mostra il sudoku di riferimento — creato da Carykh, rinumerato da Yessoan</summary>
+
+![Super Sudoku di riferimento: otto sudoku con varianti sovrapposte, creato da Carykh e rinumerato da Yessoan. I crediti originali sono visibili in basso a destra.](Supersudoku.webp)
+
+</details>
+
+[Post della community che condivide il Super Sudoku rinumerato](https://www.reddit.com/r/tenwordsofwisdom/comments/4xckvp/our_local_twower_yessoan_fixed_carys_super_sudoku/).
+
 ## Prima partita
 
 Richiede Node.js 22 o successivo. Dal terminale aperto nella cartella Supersudoku:
@@ -17,6 +32,8 @@ Apri **http://localhost:5173**. Non occorre installare dipendenze per giocare. M
 La prima partita è già pronta e verificata. **Nuova partita** permette di scegliere Facile, Media o Difficile, la composizione degli otto sudoku e un codice facoltativo. I tipi possono ripetersi: il totale delle quantità deve essere 8. Le posizioni vengono mescolate e le copie dello stesso tipo hanno un numero distinto.
 
 Dal telefono, collegati allo stesso Wi-Fi del PC e apri uno degli indirizzi `Phone (same Wi-Fi)` stampati nel terminale. Il PC e il server devono rimanere accesi. Se Windows chiede l'accesso alla rete per Node, consenti la rete privata per usare il telefono. Il progetto non è pubblicato online.
+
+**L'uso dal telefono senza PC o terminale non è ancora pubblicato.** Il prossimo passo è l'hosting HTTPS e la verifica dell'installazione PWA su un telefono reale. L'attuale indirizzo di rete locale richiede ancora il server indicato sopra.
 
 ## Comandi
 
@@ -38,7 +55,7 @@ Il generatore costruisce una soluzione per la disposizione, crea regioni irregol
 
 La generazione usa un Web Worker per lasciare reattiva l'interfaccia. Puoi annullarla senza perdere la partita. La ricerca ha limiti di calcolo: in caso di fallimento puoi riprovare, conservando lo schema attuale. Lo stesso codice riproduce la partita nella stessa versione del generatore.
 
-`Supersudoku.webp` è un riferimento alle varianti e non viene servita dall'app. Il generatore crea nuovi indizi e regioni, senza trascrivere la foto. Crediti riportati nell'immagine: Carykh e Yessoan.
+L'immagine di riferimento è inclusa nella documentazione della repository e non viene servita dal gioco. Il generatore crea nuovi indizi e regioni, senza trascrivere la foto.
 
 ## Verifica e sviluppo
 

@@ -17,8 +17,6 @@ The image is included as an attributed reference to their work. This project's c
 
 </details>
 
-[Community post sharing the re-numbered Super Sudoku](https://www.reddit.com/r/tenwordsofwisdom/comments/4xckvp/our_local_twower_yessoan_fixed_carys_super_sudoku/).
-
 ## First game
 
 Requires Node.js 22 or later. In a terminal opened in Supersudoku:

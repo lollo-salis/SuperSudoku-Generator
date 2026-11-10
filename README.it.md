@@ -17,8 +17,6 @@ L'immagine è inclusa come riferimento al loro lavoro, con i crediti originali. 
 
 </details>
 
-[Post della community che condivide il Super Sudoku rinumerato](https://www.reddit.com/r/tenwordsofwisdom/comments/4xckvp/our_local_twower_yessoan_fixed_carys_super_sudoku/).
-
 ## Prima partita
 
 Richiede Node.js 22 o successivo. Dal terminale aperto nella cartella Supersudoku:

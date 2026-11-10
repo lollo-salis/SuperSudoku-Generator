@@ -64,6 +64,8 @@ const definitions = {
       difficultyNote: 'Stima del motore basata sulle tecniche, non sul solo numero di celle vuote. Non è una classificazione umana certificata.',
       difficultyUnavailable: 'Questo codice e questa composizione non hanno prodotto il livello richiesto. Cambia codice, varianti o difficoltà. La partita attuale è conservata.',
       unrated: 'Non classificata',
+      numericKeypad: 'Tastierino numerico', hideKeypad: 'Nascondi tastierino',
+      touchHint: 'Due dita per zoomare · Trascina per spostarti',
     },
   },
   en: {
@@ -128,6 +130,8 @@ const definitions = {
       difficultyNote: 'An engine estimate based on techniques, not just empty cells. It is not a certified human difficulty rating.',
       difficultyUnavailable: 'This code and board mix did not produce the requested level. Change the code, variants or difficulty. Your current game is preserved.',
       unrated: 'Not rated',
+      numericKeypad: 'Number keypad', hideKeypad: 'Hide keypad',
+      touchHint: 'Pinch to zoom · Drag to move',
     },
   },
 };

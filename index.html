@@ -2,12 +2,13 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f6f4ed">
   <title>SuperSudoku Generator</title>
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./mobile.css">
 </head>
 <body>
   <header class="site-header">
@@ -15,17 +16,18 @@
     <div class="header-actions"><button class="icon-button" id="help-button" data-i18n="help"></button><label class="language-label"><span data-i18n="language" class="sr-only"></span><select id="language"><option value="it">Italiano</option><option value="en">English</option></select></label><button id="install-button" hidden data-i18n="install"></button></div>
   </header>
   <main>
-    <section class="page-heading"><div><p class="eyebrow" data-i18n="tagline"></p><h1 data-i18n="intro"></h1></div><button class="primary" id="new-game" data-i18n="newGame" disabled></button></section>
+    <section class="page-heading"><div><p class="eyebrow" data-i18n="tagline"></p><h1 class="desktop-heading" data-i18n="intro"></h1><h1 class="mobile-only" data-i18n="play"></h1></div><button class="primary" id="new-game" data-i18n="newGame" disabled></button></section>
     <div class="workspace">
       <section class="puzzle-panel" aria-label="SuperSudoku">
         <div class="puzzle-toolbar"><div class="view-switch"><button id="overview" class="active" data-i18n="overview"></button><button id="focus" data-i18n="focus"></button></div><div class="zoom-controls"><button id="zoom-out" data-title="zoomOut" aria-label="Zoom out">−</button><button id="zoom-fit" data-title="fit">100%</button><button id="zoom-in" data-title="zoomIn" aria-label="Zoom in">+</button></div></div>
+        <div class="mobile-navigation mobile-only"><span data-i18n="touchHint"></span><button id="mobile-reset" data-i18n="resetView"></button></div>
         <div class="focus-heading" id="focus-heading" hidden><span id="focus-name"></span><button id="focus-rules" data-i18n="rules"></button></div>
         <div class="board-viewport" id="board-viewport"><div id="board-mount" class="board-mount"><p class="loading" data-i18n="loading"></p></div></div>
         <div class="puzzle-foot"><span class="connection-symbol" aria-hidden="true">↔</span><span data-i18n="cellHint"></span><span class="puzzle-size">8 × 9 × 9</span></div>
       </section>
       <aside class="sidebar">
         <section class="session-card"><div class="session-top"><span class="eyebrow" data-i18n="play"></span><span class="timer" id="timer">00:00</span></div><div class="progress-heading"><span data-i18n="progress"></span><strong id="progress-value">0%</strong></div><div class="progress-track"><div id="progress-bar"></div></div><p class="progress-caption" id="progress-caption"></p><p class="progress-caption" id="game-difficulty"></p><p class="seed-line"><span data-i18n="gameNumber"></span> <span id="game-code"></span></p></section>
-        <section class="controls-card"><div class="entry-actions"><button id="notes" data-i18n="notes" aria-pressed="false"></button><button id="erase" data-i18n="erase"></button><button id="undo" data-i18n="undo" disabled></button><button id="redo" data-i18n="redo" disabled></button></div><div class="number-pad" id="number-pad"></div><p id="feedback" class="feedback" aria-live="polite"></p><label class="check-label" for="error-mode" data-i18n="errorCheck"></label><select id="error-mode"><option value="solution" data-i18n="checkSolution"></option><option value="rules" data-i18n="checkRules"></option><option value="off" data-i18n="checkOff"></option></select></section>
+        <section class="controls-card" id="entry-panel"><div class="keypad-heading mobile-only"><span id="keypad-cell"></span><button id="keypad-close" data-title="hideKeypad">×</button></div><div class="entry-actions"><button id="notes" data-i18n="notes" aria-pressed="false"></button><button id="erase" data-i18n="erase"></button><button id="undo" data-i18n="undo" disabled></button><button id="redo" data-i18n="redo" disabled></button></div><div class="number-pad" id="number-pad"></div><p id="feedback" class="feedback" aria-live="polite"></p><label class="check-label" for="error-mode" data-i18n="errorCheck"></label><select id="error-mode"><option value="solution" data-i18n="checkSolution"></option><option value="rules" data-i18n="checkRules"></option><option value="off" data-i18n="checkOff"></option></select></section>
         <section class="boards-card"><div class="section-heading"><h2 data-i18n="boards"></h2><span>08</span></div><div id="board-list"></div></section>
         <div class="secondary-actions"><button id="restart" data-i18n="restart"></button><button id="show-solution" data-i18n="showSolution"></button><button id="print" data-i18n="print"></button></div><p class="save-status" id="save-status" aria-live="polite" data-i18n="localNote"></p>
       </aside>

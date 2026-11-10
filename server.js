@@ -12,7 +12,7 @@ const server = createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
     const relative = pathname === '/' ? 'index.html' : pathname.slice(1);
-    if (relative.split(/[\\/]/).some(p => p.startsWith('.')) || !/^(index\.html|styles\.css|manifest\.webmanifest|sw\.js|icon\.svg|src\/[\w-]+\.js|data\/starter\.json)$/.test(relative)) {
+    if (relative.split(/[\\/]/).some(p => p.startsWith('.')) || !/^(index\.html|styles\.css|mobile\.css|manifest\.webmanifest|sw\.js|icon\.svg|src\/[\w-]+\.js|data\/starter\.json)$/.test(relative)) {
       res.writeHead(404); res.end('Not found'); return;
     }
     const target = path.resolve(root, relative);

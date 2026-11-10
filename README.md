@@ -35,8 +35,8 @@ On a phone, join the same Wi-Fi as the computer and open one of the `Phone (same
 
 ## Controls
 
-- Select a cell and use the number pad or keyboard. Arrow keys move the selection.
-- **Focus on sudoku** enlarges a board and isolates its clue markings, so overlapping cages from repeated types stay readable; tap names in the list to switch. **Full puzzle** shows all overlaps. Use + and − for additional zoom; scroll the board to move around.
+- Select a cell and use the number pad or keyboard. On phones, selecting an editable cell opens a bottom keypad with large buttons; its × button dismisses it. Starting numbers do not open the keypad. The selected cell is kept above the panel. Arrow keys move the selection.
+- **Focus on sudoku** enlarges a board and isolates its clue markings, so overlapping cages from repeated types stay readable; tap names in the list to switch. **Full puzzle** shows all overlaps. On desktop, use + and − for additional zoom. On phones, pinch with two fingers to zoom around your fingertips and drag with one finger to pan. A stationary tap selects a cell; dragging and pinching do not enter numbers.
 - Every board has a name and **Rules** button beside the full puzzle and in the list. Shared cells have one value and follow both boards' rules.
 - **Notes** (N), **Erase** (Backspace/Delete), **Undo** (Ctrl/Cmd+Z), **Redo** (Ctrl/Cmd+Shift+Z).
 - Checking defaults to comparison with the solution. Choose rule violations only, or turn checking off. Incorrect numbers are kept and highlighted for correction or undo.
@@ -71,7 +71,7 @@ node node_modules/playwright/cli.js install chromium
 npm.cmd run test:e2e
 ```
 
-Playwright checks desktop and a simulated phone: entry, errors, language changes, saving, generation, completion and offline use. Phone simulation uses Chromium and does not replace real Safari/iOS testing. Tests start and stop their own server on port 5173; stop your game server first.
+Playwright checks desktop and a simulated phone: entry, errors, language changes, saving, generation, completion and offline use. Phone simulation uses Chromium and does not replace real Safari/iOS testing. Tests start and stop their own server on port 5174, separate from the game server on 5173. Touch tests cover actual multi-touch input, panning without accidental selection, and the mobile keypad.
 
 `node scripts/create-starter.js` regenerates the first game in `data/starter.json`. `src/i18n.js` centralizes visible text in both languages; engine errors are internal developer diagnostics.
 

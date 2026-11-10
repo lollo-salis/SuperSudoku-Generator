@@ -1,0 +1,66 @@
+/* Mobile overrides are isolated to preserve the desktop layout. */
+.mobile-only { display: none; }
+
+@media (max-width: 740px), (max-width: 1000px) and (pointer: coarse) {
+  :root { --keypad-height: 0px; }
+  .mobile-only { display: block; }
+  button { touch-action: manipulation; }
+  body { padding-bottom: calc(var(--keypad-height) + env(safe-area-inset-bottom, 0px)); }
+  .site-header { height: 58px; padding-top: env(safe-area-inset-top, 0px); }
+  .page-heading { padding: 14px 0; align-items: center; }
+  .page-heading .eyebrow, .desktop-heading { display: none; }
+  .page-heading h1 { margin: 0; font-size: 24px; letter-spacing: -.5px; }
+  .workspace { display: flex; flex-direction: column; gap: 12px; }
+  .puzzle-panel, .sidebar { width: 100%; }
+  .sidebar { display: flex; flex-direction: column; gap: 12px; }
+  .puzzle-toolbar { padding: 8px; }
+  .view-switch { width: 100%; }
+  .view-switch button { flex: 1; min-height: 38px; font-size: 12px; }
+  .zoom-controls { display: none; }
+  .mobile-navigation { display: flex; align-items: center; justify-content: space-between; padding: 0 13px; gap: 8px; color: var(--muted); font-size: 10px; }
+  .mobile-navigation button { border: 0; padding: 8px 0; min-height: 36px; color: var(--accent); font-size: 10px; }
+  .focus-heading { padding: 2px 14px 4px; font-size: 19px; }
+  .focus-heading button { min-height: 36px; }
+  .board-viewport { height: min(62dvh, calc(100vw - 32px)); max-height: none; min-height: 200px; touch-action: none; overscroll-behavior: contain; }
+  .board-mount, .board-mount svg { touch-action: none; }
+  .mobile-keypad-open .board-viewport { height: min(calc(100dvh - var(--keypad-height) - 170px), calc(100vw - 32px)); min-height: 150px; }
+  .mobile-keypad-open .page-heading, .mobile-keypad-open .mobile-navigation { display: none; }
+  .puzzle-foot { padding: 7px 12px; font-size: 9px; }
+  .controls-card { display: none; }
+  .mobile-keypad-open .controls-card {
+    display: block; position: fixed; z-index: 20; left: 8px; right: 8px; bottom: 0;
+    max-height: 55dvh; overflow-y: auto; margin: 0; padding: 9px 12px max(9px, env(safe-area-inset-bottom, 0px));
+    border-radius: 16px 16px 0 0; background: var(--surface); box-shadow: 0 -8px 32px #24352f24;
+  }
+  .keypad-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  #keypad-cell { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #keypad-close { border: 0; font-size: 26px; line-height: 1; padding: 0 8px; min-height: 34px; min-width: 40px; }
+  .entry-actions { grid-template-columns: repeat(4, 1fr); }
+  .entry-actions button { min-height: 36px; font-size: 11px; }
+  .number-pad { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin: 7px 0 0; }
+  .number-pad button { min-height: 44px; padding: 5px 0; font-size: 27px; touch-action: manipulation; }
+  .number-pad .mobile-only { display: block; font: 23px var(--sans); }
+  .feedback { font-size: 10px; min-height: 16px; margin: 6px 0 0; }
+  .feedback:not(.error):not(.success) { display: none; }
+  .check-label { display: inline-block; font-size: 10px; margin: 6px 6px 0 0; }
+  #error-mode { display: inline-block; width: auto; max-width: 68%; padding: 4px; font-size: 16px; }
+  .session-card { order: 1; padding: 14px; }
+  .boards-card { order: 2; }
+  .secondary-actions { order: 3; }
+  .save-status { order: 4; }
+  .board-row > button:first-of-type, .board-row .rules-button { min-height: 44px; }
+  .secondary-actions button { min-height: 44px; }
+  input, select, dialog input, dialog select, .recipe-grid input { font-size: 16px; }
+}
+
+@media (max-height: 500px) and (pointer: coarse) and (max-width: 1000px) {
+  .mobile-keypad-open .controls-card { left: auto; right: 8px; width: 290px; max-height: 95dvh; border-radius: 12px; }
+  .mobile-keypad-open .puzzle-panel { width: calc(100% - 300px); }
+  .mobile-keypad-open .board-viewport { height: 52dvh; }
+  .mobile-keypad-open { padding-bottom: 0; }
+}
+
+@media print {
+  .mobile-only, #entry-panel { display: none !important; }
+  body { padding-bottom: 0; }
+}

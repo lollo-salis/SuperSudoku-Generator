@@ -35,8 +35,8 @@ Dal telefono, collegati allo stesso Wi-Fi del PC e apri uno degli indirizzi `Pho
 
 ## Comandi
 
-- Seleziona una cella e usa il tastierino o la tastiera. Le frecce spostano la selezione.
-- **Ingrandisci sudoku** mostra una griglia e isola i suoi indizi, evitando confusione tra gabbie di tipi ripetuti; tocca un nome nell'elenco per cambiarla. **Schema completo** mostra tutte le sovrapposizioni. I controlli + e − aumentano lo zoom; scorri la griglia per spostarti.
+- Seleziona una cella e usa il tastierino o la tastiera. Sul telefono, toccare una cella modificabile apre un tastierino in basso con pulsanti grandi; × lo chiude. I numeri iniziali non aprono il tastierino. La cella selezionata resta visibile sopra il pannello. Le frecce spostano la selezione.
+- **Ingrandisci sudoku** mostra una griglia e isola i suoi indizi, evitando confusione tra gabbie di tipi ripetuti; tocca un nome nell'elenco per cambiarla. **Schema completo** mostra tutte le sovrapposizioni. Sul PC i controlli + e − aumentano lo zoom. Sul telefono usa due dita per zoomare attorno al punto toccato e trascina con un dito per spostarti. Trascinamenti e zoom non selezionano celle né inseriscono numeri.
 - Ogni sudoku ha nome e pulsante **Regole**, nello schema completo e nell'elenco. Una cella condivisa ha un solo valore e rispetta entrambi i sudoku.
 - **Appunti** (N), **Cancella** (Backspace/Delete), **Annulla** (Ctrl/Cmd+Z), **Ripristina** (Ctrl/Cmd+Shift+Z).
 - Il controllo predefinito confronta con la soluzione; puoi scegliere solo le violazioni delle regole o disattivarlo. Gli errori vengono mantenuti ed evidenziati per consentire correzione o annullamento.
@@ -71,7 +71,7 @@ node node_modules/playwright/cli.js install chromium
 npm.cmd run test:e2e
 ```
 
-Playwright verifica desktop e telefono simulato: inserimento, errori, cambio lingua, salvataggio, nuova partita, completamento e offline. La simulazione usa Chromium e non sostituisce una prova su Safari/iOS reale. I test avviano e arrestano il loro server sulla porta 5173: ferma il server di gioco prima di eseguirli.
+Playwright verifica desktop e telefono simulato: inserimento, errori, cambio lingua, salvataggio, nuova partita, completamento e offline. La simulazione usa Chromium e non sostituisce una prova su Safari/iOS reale. I test avviano e arrestano il proprio server sulla porta 5174, separata dalla porta 5173 usata dal gioco. I test touch verificano multitocco reale nel browser, trascinamento senza selezioni accidentali e tastierino mobile.
 
 `node scripts/create-starter.js` rigenera la prima partita in `data/starter.json`. `src/i18n.js` centralizza i testi visibili in entrambe le lingue; gli errori tecnici del motore sono diagnostica interna.
 

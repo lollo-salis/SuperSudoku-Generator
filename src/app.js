@@ -2,6 +2,7 @@ import { boardInfo, VARIANTS } from './layout.js';
 import { translate, resolveLocale, variantInfo } from './i18n.js';
 import { cellId } from './engine.js';
 import { Game, serializeGame, deserializeGame } from './game.js';
+import { enableTouchBoard, enableMobileButtons } from './touch-board.js';
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
@@ -11,15 +12,67 @@ const colours = {
 };
 const offsetColours = ['#f1e6a5', '#d2d8dc', '#efd3a7', '#e4c9dd', '#cae3ca', '#d7c4ac', '#c8dbb4', '#f7f5ed', '#c9c4e2'];
 const labelPositions = [[22, 1], [-2, 7], [28, 7], [-8, 15], [34, 15], [-2, 24], [28, 24], [22, 30]];
-let locale = 'it', game, selected, activeBoard, pencil = false, view = matchMedia('(max-width: 740px)').matches ? 'focus' : 'overview';
+const mobileQuery = matchMedia('(max-width: 740px), (max-width: 1000px) and (pointer: coarse)');
+let locale = 'it', game, selected, activeBoard, pencil = false, view = mobileQuery.matches ? 'focus' : 'overview';
 let zoom = 1, elapsed = 0, errorMode = 'solution', solutionVisible = false, worker, workerTimeout, lastTick = Date.now(), saveProblem = false;
-let dialogContent;
+let dialogContent, keypadOpen = false, revealFrame;
 try {
   const settings = JSON.parse(localStorage.getItem('supersudoku.settings') || '{}');
   locale = resolveLocale(settings.locale);
   if (['solution', 'rules', 'off'].includes(settings.errorMode)) errorMode = settings.errorMode;
 } catch { /* The game remains playable when storage is unavailable. */ }
 const t = key => translate(key, locale);
+
+function updateKeypad() {
+  const open = mobileQuery.matches && keypadOpen && game && selected && !game.puzzle.givens[selected] && !solutionVisible;
+  document.body.classList.toggle('mobile-keypad-open', Boolean(open));
+  $('entry-panel').setAttribute('aria-label', t('numericKeypad'));
+  if (open) {
+    const board = game.puzzle.boards.find(b => b.id === activeBoard), cell = game.model.cells.get(selected);
+    $('keypad-cell').textContent = `${boardInfo(board, locale).name} · ${t('row')} ${cell.y - board.y + 1}, ${t('column')} ${cell.x - board.x + 1}`;
+  }
+  document.documentElement.style.setProperty('--keypad-height', open ? `${$('entry-panel').offsetHeight}px` : '0px');
+}
+function closeKeypad() { keypadOpen = false; updateKeypad(); }
+function revealCell() {
+  cancelAnimationFrame(revealFrame);
+  revealFrame = requestAnimationFrame(() => {
+    if (!mobileQuery.matches || !keypadOpen || !selected) return;
+    const element = $('board-mount').querySelector(`[data-cell="${selected}"]`);
+    if (!element) return;
+    const viewport = $('board-viewport'), area = viewport.getBoundingClientRect();
+    const top = Math.max(8, area.top + 4), bottom = Math.min(area.bottom - 4, $('entry-panel').getBoundingClientRect().top - 8);
+    let bounds = element.getBoundingClientRect();
+    if (bounds.bottom > bottom) viewport.scrollTop += bounds.bottom - bottom;
+    else if (bounds.top < top) viewport.scrollTop -= top - bounds.top;
+    bounds = element.getBoundingClientRect();
+    if (bounds.bottom > bottom) window.scrollBy(0, bounds.bottom - bottom);
+    else if (bounds.top < 8) window.scrollBy(0, bounds.top - 8);
+  });
+}
+const touchBoard = enableTouchBoard($('board-viewport'), {
+  enabled: () => mobileQuery.matches && Boolean(game),
+  getZoom: () => zoom,
+  setZoom: scale => {
+    zoom = scale;
+    $('board-mount').style.width = `${zoom * 100}%`;
+    $('zoom-fit').textContent = `${Math.round(zoom * 100)}%`;
+  },
+  onTap: target => {
+    const cell = target?.closest('[data-cell]'), rules = target?.closest('[data-rules]'), board = target?.closest('[data-board]');
+    if (cell) chooseCell(cell.dataset.cell);
+    else if (rules) showRules(rules.dataset.rules);
+    else if (board) focusBoard(board.dataset.board);
+  },
+});
+enableMobileButtons(() => mobileQuery.matches);
+new ResizeObserver(updateKeypad).observe($('entry-panel'));
+mobileQuery.addEventListener('change', () => {
+  touchBoard.reset(); closeKeypad(); zoom = 1;
+  if (mobileQuery.matches) view = 'focus';
+  if (game) render();
+});
+window.addEventListener('resize', () => { updateKeypad(); revealCell(); });
 
 function svgNode(tag, attrs = {}, text) {
   const element = document.createElementNS(NS, tag);
@@ -217,6 +270,7 @@ function render() {
   $('feedback').className = `feedback${selectedError && !solutionVisible ? ' error' : ''}${game.completed ? ' success' : ''}`;
   $('save-status').textContent = t(saveProblem ? 'saveFailed' : 'localNote');
   for (const button of $('number-pad').children) button.disabled = solutionVisible || !selected || Boolean(game.puzzle.givens[selected]);
+  updateKeypad();
 }
 
 function chooseCell(id, keyboard = false) {
@@ -224,12 +278,15 @@ function chooseCell(id, keyboard = false) {
   selected = id;
   const cell = game.model.cells.get(id);
   if (!cell.boards.includes(activeBoard)) activeBoard = cell.boards[0];
+  if (mobileQuery.matches) keypadOpen = !game.puzzle.givens[id] && !solutionVisible;
   render();
+  revealCell();
   if (keyboard) $('board-mount').querySelector(`[data-cell="${id}"]`)?.focus({ preventScroll: true });
 }
 function focusBoard(id) {
   if (!game.puzzle.boards.some(b => b.id === id)) return;
   activeBoard = id; view = 'focus'; zoom = 1;
+  closeKeypad();
   const board = game.puzzle.boards.find(b => b.id === id);
   if (!game.model.cells.get(selected)?.boards.includes(id)) selected = cellId(board.x, board.y);
   render(); $('board-viewport').scrollTo(0, 0);
@@ -242,9 +299,13 @@ function fillTextDialog() {
   const info = dialogContent === 'help' ? { name: t('help'), rules: t('helpText') } : boardInfo(game.puzzle.boards.find(b => b.id === dialogContent), locale);
   $('dialog-title').textContent = info.name; $('dialog-body').textContent = info.rules;
 }
-function showRules(id) { dialogContent = id; fillTextDialog(); $('text-dialog').showModal(); }
+function showRules(id) { closeKeypad(); dialogContent = id; fillTextDialog(); $('text-dialog').showModal(); }
 
 document.addEventListener('click', event => {
+  if (event.detail !== 0 && $('board-viewport').contains(event.target) && touchBoard.suppressClick()) {
+    event.preventDefault(); return;
+  }
+  if (mobileQuery.matches && keypadOpen && !$('entry-panel').contains(event.target) && !$('board-viewport').contains(event.target)) closeKeypad();
   const cell = event.target.closest('[data-cell]'), rules = event.target.closest('[data-rules]'), board = event.target.closest('[data-board]');
   if (cell) chooseCell(cell.dataset.cell);
   else if (rules) showRules(rules.dataset.rules);
@@ -256,6 +317,7 @@ document.addEventListener('keydown', event => {
     event.preventDefault(); event.target.closest('[data-board], [data-rules]').dispatchEvent(new MouseEvent('click', { bubbles: true })); return;
   }
   if (!game) return;
+  if (event.key === 'Escape' && mobileQuery.matches) { closeKeypad(); return; }
   if (/^[1-9]$/.test(event.key) && !event.ctrlKey && !event.metaKey && !event.altKey) { event.preventDefault(); enter(Number(event.key)); }
   else if (['Backspace', 'Delete', '0'].includes(event.key)) { event.preventDefault(); enter(0); }
   else if (event.key.toLowerCase() === 'n') { pencil = !pencil; render(); }
@@ -276,13 +338,18 @@ document.addEventListener('keydown', event => {
 for (let n = 1; n <= 9; n++) {
   const button = document.createElement('button'); button.textContent = n; button.addEventListener('click', () => enter(n)); $('number-pad').append(button);
 }
+const mobileErase = document.createElement('button');
+mobileErase.id = 'mobile-erase'; mobileErase.className = 'mobile-only'; mobileErase.dataset.title = 'erase'; mobileErase.textContent = '⌫';
+mobileErase.addEventListener('click', () => enter(0)); $('number-pad').append(mobileErase);
+$('keypad-close').onclick = closeKeypad;
+$('mobile-reset').onclick = () => { zoom = 1; touchBoard.reset(); renderBoard(); $('board-viewport').scrollTo(0, 0); };
 $('notes').onclick = () => { pencil = !pencil; render(); };
 $('erase').onclick = () => enter(0);
 $('undo').onclick = () => { game.undo(); save(); render(); };
 $('redo').onclick = () => { game.redo(); save(); render(); };
 $('language').onchange = event => { locale = resolveLocale(event.target.value); persistSettings(); localize(); };
 $('error-mode').onchange = event => { errorMode = event.target.value; persistSettings(); render(); };
-$('overview').onclick = () => { view = 'overview'; zoom = 1; render(); $('board-viewport').scrollTo(0, 0); };
+$('overview').onclick = () => { closeKeypad(); view = 'overview'; zoom = 1; render(); $('board-viewport').scrollTo(0, 0); };
 $('focus').onclick = () => focusBoard(activeBoard);
 $('focus-rules').onclick = () => showRules(activeBoard);
 $('zoom-in').onclick = () => { zoom = Math.min(4, zoom + .25); renderBoard(); };
@@ -303,7 +370,7 @@ let printView;
 window.addEventListener('beforeprint', () => { printView = view; view = 'overview'; renderBoard(); });
 window.addEventListener('afterprint', () => { if (printView) { view = printView; printView = undefined; renderBoard(); } });
 $('print').onclick = () => window.print();
-$('new-game').onclick = () => { $('new-dialog').showModal(); };
+$('new-game').onclick = () => { closeKeypad(); $('new-dialog').showModal(); };
 function recipeVariants() {
   return [...$('recipe-inputs').querySelectorAll('input')].flatMap(input =>
     Array.from({ length: Math.max(0, Math.min(8, Number(input.value) || 0)) }, () => input.dataset.variant));

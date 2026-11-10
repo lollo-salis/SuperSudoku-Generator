@@ -1,5 +1,5 @@
-const CACHE = 'supersudoku-v2';
-const ASSETS = ['./', './index.html', './styles.css', './icon.svg', './manifest.webmanifest', './data/starter.json', ...['app', 'engine', 'game', 'generator', 'generator-worker', 'i18n', 'layout', 'difficulty'].map(name => `./src/${name}.js`)];
+const CACHE = 'supersudoku-v3';
+const ASSETS = ['./', './index.html', './styles.css', './mobile.css', './icon.svg', './manifest.webmanifest', './data/starter.json', ...['app', 'engine', 'game', 'generator', 'generator-worker', 'i18n', 'layout', 'difficulty', 'touch-board'].map(name => `./src/${name}.js`)];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('supersudoku-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {

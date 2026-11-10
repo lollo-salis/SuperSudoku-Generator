@@ -41,9 +41,12 @@ test('rule data and labels travel with their board without mutating the source',
   assert.deepEqual(createLayout({ shuffle: false }), LAYOUT);
 });
 
-test('rejects missing variants, duplicate identities, and unknown variants', () => {
+test('allows repeated variants but rejects missing boards, duplicate identities, and unknown variants', () => {
   assert.throws(() => createLayout({ boards: [] }));
   assert.throws(() => createLayout({ boards: LAYOUT.map(b => ({ ...b, id: 'duplicate' })) }));
-  assert.throws(() => createLayout({ boards: LAYOUT.map(b => ({ ...b, variant: 'classic' })) }));
+  const repeated = createLayout({ variants: Array(8).fill('classic'), seed: 'repeated' });
+  assert.equal(new Set(repeated.map(b => b.id)).size, 8);
+  assert.ok(repeated.every(b => b.variant === 'classic'));
+  assert.throws(() => createLayout({ variants: Array(8).fill('unknown') }));
   assert.throws(() => boardInfo({ variant: 'missing' }));
 });

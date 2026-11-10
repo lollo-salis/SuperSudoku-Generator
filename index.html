@@ -24,7 +24,7 @@
         <div class="puzzle-foot"><span class="connection-symbol" aria-hidden="true">↔</span><span data-i18n="cellHint"></span><span class="puzzle-size">8 × 9 × 9</span></div>
       </section>
       <aside class="sidebar">
-        <section class="session-card"><div class="session-top"><span class="eyebrow" data-i18n="play"></span><span class="timer" id="timer">00:00</span></div><div class="progress-heading"><span data-i18n="progress"></span><strong id="progress-value">0%</strong></div><div class="progress-track"><div id="progress-bar"></div></div><p class="progress-caption" id="progress-caption"></p><p class="seed-line"><span data-i18n="gameNumber"></span> <span id="game-code"></span></p></section>
+        <section class="session-card"><div class="session-top"><span class="eyebrow" data-i18n="play"></span><span class="timer" id="timer">00:00</span></div><div class="progress-heading"><span data-i18n="progress"></span><strong id="progress-value">0%</strong></div><div class="progress-track"><div id="progress-bar"></div></div><p class="progress-caption" id="progress-caption"></p><p class="progress-caption" id="game-difficulty"></p><p class="seed-line"><span data-i18n="gameNumber"></span> <span id="game-code"></span></p></section>
         <section class="controls-card"><div class="entry-actions"><button id="notes" data-i18n="notes" aria-pressed="false"></button><button id="erase" data-i18n="erase"></button><button id="undo" data-i18n="undo" disabled></button><button id="redo" data-i18n="redo" disabled></button></div><div class="number-pad" id="number-pad"></div><p id="feedback" class="feedback" aria-live="polite"></p><label class="check-label" for="error-mode" data-i18n="errorCheck"></label><select id="error-mode"><option value="solution" data-i18n="checkSolution"></option><option value="rules" data-i18n="checkRules"></option><option value="off" data-i18n="checkOff"></option></select></section>
         <section class="boards-card"><div class="section-heading"><h2 data-i18n="boards"></h2><span>08</span></div><div id="board-list"></div></section>
         <div class="secondary-actions"><button id="restart" data-i18n="restart"></button><button id="show-solution" data-i18n="showSolution"></button><button id="print" data-i18n="print"></button></div><p class="save-status" id="save-status" aria-live="polite" data-i18n="localNote"></p>
@@ -33,7 +33,25 @@
   </main>
   <footer><span>SUPER SUDOKU</span><span data-i18n="tagline"></span></footer>
   <dialog id="text-dialog"><button class="dialog-close" id="text-close" data-title="close">×</button><p class="eyebrow">SUPER SUDOKU</p><h2 id="dialog-title"></h2><p id="dialog-body"></p><button class="primary" id="dialog-done" data-i18n="close"></button></dialog>
-  <dialog id="new-dialog"><button class="dialog-close" id="new-close" data-title="close">×</button><p class="eyebrow" data-i18n="tagline"></p><h2 data-i18n="newGame"></h2><p data-i18n="newGameHint"></p><form id="generate-form"><label for="seed" data-i18n="seed"></label><input id="seed" maxlength="80" autocomplete="off" data-placeholder="seedHint"><label for="density" data-i18n="density"></label><select id="density"><option value="320" data-i18n="relaxed"></option><option value="400" data-i18n="challenging"></option></select><p class="muted" data-i18n="newGameConfirm"></p><div id="generation-status" aria-live="polite" hidden><div class="spinner"></div><span id="generation-message"></span><progress id="generation-progress" max="100"></progress><p data-i18n="generationNote"></p></div><div class="dialog-actions"><button type="button" id="cancel-generation" data-i18n="cancel"></button><button type="submit" class="primary" id="generate-button" data-i18n="generate"></button></div></form></dialog>
+  <dialog id="new-dialog">
+    <button class="dialog-close" id="new-close" data-title="close">×</button>
+    <p class="eyebrow" data-i18n="tagline"></p><h2 data-i18n="newGame"></h2><p data-i18n="newGameHint"></p>
+    <form id="generate-form">
+      <label for="seed" data-i18n="seed"></label><input id="seed" maxlength="80" autocomplete="off" data-placeholder="seedHint">
+      <label for="difficulty" data-i18n="difficulty"></label>
+      <select id="difficulty"><option value="easy" data-i18n="easy"></option><option value="medium" data-i18n="medium"></option><option value="hard" data-i18n="hard"></option></select>
+      <p id="difficulty-description" class="muted"></p><p class="muted" data-i18n="difficultyNote"></p>
+      <fieldset id="recipe-fieldset"><legend data-i18n="recipe"></legend>
+        <p class="muted" data-i18n="recipeHint"></p>
+        <div class="recipe-presets"><button type="button" id="one-each" data-i18n="oneEach"></button><button type="button" id="all-classic" data-i18n="allClassic"></button></div>
+        <div class="recipe-grid" id="recipe-inputs"></div>
+        <p id="recipe-total" aria-live="polite"></p><p id="recipe-error" class="recipe-error" hidden data-i18n="recipeInvalid"></p>
+      </fieldset>
+      <p class="muted" data-i18n="newGameConfirm"></p>
+      <div id="generation-status" aria-live="polite" hidden><div class="spinner"></div><span id="generation-message"></span><progress id="generation-progress" max="100"></progress><p data-i18n="generationNote"></p></div>
+      <div class="dialog-actions"><button type="button" id="cancel-generation" data-i18n="cancel"></button><button type="submit" class="primary" id="generate-button" data-i18n="generate"></button></div>
+    </form>
+  </dialog>
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>

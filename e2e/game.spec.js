@@ -106,3 +106,35 @@ test('offline reload works after the initial service worker has cached the app',
   await expect(page.locator('[data-cell]')).toHaveCount(576);
   await expect(page.locator('#new-game')).toBeEnabled();
 });
+
+test('custom mix validates its total and generates independently labelled repeated boards', async ({ page }) => {
+  await page.locator('#language').selectOption('en');
+  await page.locator('#new-game').click();
+  await page.locator('#all-classic').click();
+  await expect(page.locator('#recipe-total')).toContainText('8 / 8');
+  await page.locator('[data-variant="classic"]').fill('7');
+  await expect(page.locator('#recipe-error')).toBeVisible();
+  await expect(page.locator('#generate-button')).toBeDisabled();
+  await page.locator('[data-variant="classic"]').fill('5');
+  await page.locator('[data-variant="killer"]').fill('3');
+  await expect(page.locator('#generate-button')).toBeEnabled();
+  await page.locator('#difficulty').selectOption('medium');
+  await expect(page.locator('#difficulty-description')).toContainText('hidden singles');
+  await page.locator('#difficulty').selectOption('easy');
+  await page.locator('#seed').fill('repeated-mix');
+  await page.locator('#generate-button').click();
+  await expect(page.locator('#new-dialog')).not.toBeVisible({ timeout: 45000 });
+  await expect(page.locator('#game-difficulty')).toHaveText('Difficulty: Easy');
+  await expect(page.locator('#board-list [data-board]').filter({ hasText: 'Killer Sudoku' })).toHaveCount(3);
+  await expect(page.locator('#board-list [data-board]').filter({ hasText: 'Classic Sudoku' })).toHaveCount(5);
+  const names = await page.locator('#board-list [data-board]').allTextContents();
+  expect(new Set(names).size).toBe(8);
+  const selectedKiller = await page.evaluate(() => JSON.parse(localStorage.getItem('supersudoku.game')).puzzle.boards.find(b => b.variant === 'killer'));
+  await page.locator(`#board-list [data-board="${selectedKiller.id}"]`).click();
+  await expect(page.locator('.cage-total')).toHaveCount(selectedKiller.cages.length);
+  await page.locator('#board-list [data-rules]').first().click();
+  await expect(page.locator('#dialog-body')).toContainText('Overlapping cells');
+  await page.locator('#dialog-done').click();
+  await page.reload();
+  await expect(page.locator('#board-list [data-board]').filter({ hasText: 'Killer Sudoku' })).toHaveCount(3);
+});

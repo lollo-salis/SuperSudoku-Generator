@@ -1,5 +1,5 @@
-import { boardInfo } from './layout.js';
-import { translate, resolveLocale } from './i18n.js';
+import { boardInfo, VARIANTS } from './layout.js';
+import { translate, resolveLocale, variantInfo } from './i18n.js';
 import { cellId } from './engine.js';
 import { Game, serializeGame, deserializeGame } from './game.js';
 
@@ -51,6 +51,8 @@ function localize() {
     element.title = t(element.dataset.title); element.setAttribute('aria-label', t(element.dataset.title));
   }
   for (const element of document.querySelectorAll('[data-placeholder]')) element.placeholder = t(element.dataset.placeholder);
+  for (const element of document.querySelectorAll('[data-variant-name]')) element.textContent = variantInfo(element.dataset.variantName, locale).name;
+  updateRecipe(); updateDifficulty();
   if (dialogContent) fillTextDialog();
   if (game) render();
 }
@@ -102,6 +104,9 @@ function renderBoard() {
   }
   svg.append(tint);
   for (const b of game.puzzle.boards) {
+    // Focus isolates clue markings when repeated variants overlap.
+    // Shared values are still validated against every board by the game model.
+    if (view === 'focus' && b.id !== activeBoard) continue;
     const at = ([r, c]) => [b.x + c, b.y + r];
     if (b.variant === 'diagonal') {
       line(overlay, b.x, b.y, b.x + 9, b.y + 9, { stroke: '#b65a54', 'stroke-width': .035, opacity: .65 });
@@ -129,7 +134,7 @@ function renderBoard() {
       const first = [...cage.cells].sort((a, b) => a[0] - b[0] || a[1] - b[1])[0];
       const [x, y] = at(first);
       overlay.append(svgNode('rect', { x: x + .06, y: y + .025, width: .4, height: .25, fill: '#f3f3e6' }));
-      overlay.append(svgNode('text', { x: x + .1, y: y + .23, 'font-size': .23, fill: '#58623b', 'font-family': 'Arial' }, String(cage.target)));
+      overlay.append(svgNode('text', { x: x + .1, y: y + .23, 'font-size': .23, fill: '#58623b', 'font-family': 'Arial', class: 'cage-total' }, String(cage.target)));
     }
     for (const [index, group] of (b.additions ?? []).entries()) {
       for (const pos of [...group.cells, group.target]) {
@@ -200,6 +205,7 @@ function render() {
   $('progress-bar').style.width = `${percent}%`;
   $('progress-caption').textContent = `${count} / 576 ${t('filled')}`;
   $('game-code').textContent = game.puzzle.seed;
+  $('game-difficulty').textContent = `${t('difficulty')}: ${t(game.puzzle.difficulty ?? 'unrated')}`;
   $('undo').disabled = !game.history.length || solutionVisible;
   $('redo').disabled = !game.future.length || solutionVisible;
   $('notes').setAttribute('aria-pressed', String(pencil));
@@ -298,21 +304,46 @@ window.addEventListener('beforeprint', () => { printView = view; view = 'overvie
 window.addEventListener('afterprint', () => { if (printView) { view = printView; printView = undefined; renderBoard(); } });
 $('print').onclick = () => window.print();
 $('new-game').onclick = () => { $('new-dialog').showModal(); };
+function recipeVariants() {
+  return [...$('recipe-inputs').querySelectorAll('input')].flatMap(input =>
+    Array.from({ length: Math.max(0, Math.min(8, Number(input.value) || 0)) }, () => input.dataset.variant));
+}
+function updateRecipe() {
+  const inputs = [...$('recipe-inputs').querySelectorAll('input')];
+  const total = inputs.reduce((sum, input) => sum + (Number(input.value) || 0), 0);
+  const valid = total === 8 && inputs.every(input => input.value !== '' && Number.isInteger(Number(input.value)) && Number(input.value) >= 0 && Number(input.value) <= 8);
+  $('recipe-total').textContent = `${t('recipeTotal')}: ${total} / 8`;
+  $('recipe-error').hidden = valid;
+  $('generate-button').disabled = !valid || Boolean(worker);
+  return valid;
+}
+function updateDifficulty() { $('difficulty-description').textContent = t(`${$('difficulty').value}Description`); }
+for (const variant of Object.keys(VARIANTS)) {
+  const label = document.createElement('label');
+  const name = document.createElement('span'); name.dataset.variantName = variant;
+  const input = document.createElement('input'); input.type = 'number'; input.min = 0; input.max = 8; input.step = 1; input.value = 1; input.dataset.variant = variant;
+  input.addEventListener('input', updateRecipe);
+  label.append(name, input); $('recipe-inputs').append(label);
+}
+$('difficulty').onchange = updateDifficulty;
+$('one-each').onclick = () => { for (const input of $('recipe-inputs').querySelectorAll('input')) input.value = 1; updateRecipe(); };
+$('all-classic').onclick = () => { for (const input of $('recipe-inputs').querySelectorAll('input')) input.value = input.dataset.variant === 'classic' ? 8 : 0; updateRecipe(); };
 function stopGeneration() {
   worker?.terminate(); worker = undefined; clearTimeout(workerTimeout);
   $('generation-status').hidden = true; $('generate-button').disabled = false;
-  $('seed').disabled = $('density').disabled = false;
+  $('seed').disabled = $('difficulty').disabled = $('recipe-fieldset').disabled = false;
+  updateRecipe();
 }
 $('new-close').onclick = $('cancel-generation').onclick = () => { stopGeneration(); $('new-dialog').close(); };
 $('new-dialog').addEventListener('cancel', stopGeneration);
 $('generate-form').onsubmit = event => {
   event.preventDefault();
-  if (worker) return;
+  if (worker || !updateRecipe()) return;
   $('generation-status').hidden = false;
   $('generation-message').textContent = t('constructing');
   $('generation-progress').removeAttribute('value');
-  $('generate-button').disabled = true; $('seed').disabled = $('density').disabled = true;
-  const fail = () => { stopGeneration(); $('generation-status').hidden = false; $('generation-message').textContent = t('generationFailed'); $('generation-status').querySelector('.spinner').hidden = true; };
+  $('generate-button').disabled = true; $('seed').disabled = $('difficulty').disabled = $('recipe-fieldset').disabled = true;
+  const fail = (kind) => { stopGeneration(); $('generation-status').hidden = false; $('generation-message').textContent = t(kind === 'difficulty' ? 'difficultyUnavailable' : 'generationFailed'); $('generation-status').querySelector('.spinner').hidden = true; };
   $('generation-status').querySelector('.spinner').hidden = false;
   try {
     worker = new Worker(new URL('./generator-worker.js', import.meta.url), { type: 'module' });
@@ -328,10 +359,10 @@ $('generate-form').onsubmit = event => {
           stopGeneration(); game = next; elapsed = 0; selected = undefined; pencil = false; solutionVisible = false;
           activeBoard = game.puzzle.boards[0].id; save(); render(); $('new-dialog').close();
         } catch { fail(); }
-      } else fail();
+      } else fail(data.error);
     };
     worker.onerror = fail;
-    worker.postMessage({ seed: $('seed').value.trim() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, blanks: Number($('density').value) });
+    worker.postMessage({ seed: $('seed').value.trim() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, difficulty: $('difficulty').value, variants: recipeVariants() });
   } catch { fail(); }
 };
 

@@ -26,15 +26,21 @@ export function seededRandom(seed) {
 /** Local rule coordinates must be relative to their board, not to its slot. */
 export const createSeed = () => globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
-export function createLayout({ seed = createSeed(), shuffle = true, boards } = {}) {
-  const definitions = boards ?? Object.keys(VARIANTS).map(variant => ({ id: variant, variant }));
-  if (definitions.length !== 8 || new Set(definitions.map(b => b.variant)).size !== 8 ||
+export function createLayout({ seed = createSeed(), shuffle = true, boards, variants } = {}) {
+  if (boards && variants) throw new Error('Provide boards or variants, not both');
+  const types = variants ?? Object.keys(VARIANTS);
+  const definitions = boards ?? types.map((variant, i) => ({ id: `${variant}-${i + 1}`, variant }));
+  if (definitions.length !== 8 ||
       definitions.some(b => !Object.hasOwn(VARIANTS, b.variant)) ||
       definitions.some(b => typeof b.id !== 'string' || !b.id) ||
       new Set(definitions.map(b => b.id)).size !== 8) {
-    throw new Error('Expected eight distinct boards, one per supported variant');
+    throw new Error('Expected eight boards with unique identities and supported variants');
   }
-  const ordered = structuredClone(definitions);
+  const ordered = structuredClone(definitions).map((board, i) => ({
+    ...board,
+    instance: definitions.slice(0, i + 1).filter(b => b.variant === board.variant).length,
+    copies: definitions.filter(b => b.variant === board.variant).length,
+  }));
   if (shuffle) {
     const random = seededRandom(seed);
     for (let i = ordered.length - 1; i > 0; i--) {
@@ -50,5 +56,5 @@ export const LAYOUT = Object.freeze(createLayout({ shuffle: false }).map(Object.
 
 export function boardInfo(board, locale = 'it') {
   const info = variantInfo(board.variant, locale);
-  return { boardId: board.id, slotId: board.slotId, name: info.name, rules: info.rules };
+  return { boardId: board.id, slotId: board.slotId, name: `${info.name}${board.copies > 1 ? ` · ${board.instance}` : ''}`, rules: info.rules };
 }

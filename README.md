@@ -1,53 +1,53 @@
-﻿# SuperSudoku Generator
+# SuperSudoku Generator
 
-App locale per generare e risolvere supersudoku da PC e telefono: otto varianti, 576 celle, sovrapposizioni e soluzione unica verificata.
+A local app to generate and play supersudokus on computers and phones: eight variants, 576 cells, shared overlaps and verified unique solutions.
 
-[English documentation](README.en.md)
+English is the primary language for this repository, documentation, commits and pull requests. [Documentazione italiana](README.it.md) is available as a secondary translation. The game itself supports both Italian and English.
 
-## Prima partita
+## First game
 
-Richiede Node.js 22 o successivo. Dal terminale aperto nella cartella Supersudoku:
+Requires Node.js 22 or later. In a terminal opened in Supersudoku:
 
 ```powershell
 node server.js
 ```
 
-Apri **http://localhost:5173**. Non occorre installare dipendenze per giocare. Mantieni aperto il terminale; Ctrl+C arresta il server.
+Open **http://localhost:5173**. No dependencies need installing to play. Keep the terminal open; Ctrl+C stops the server.
 
-La prima partita è già pronta e verificata. **Nuova partita** genera un nuovo schema: scegli 320 o 400 caselle vuote e, facoltativamente, un codice per riprodurlo. La quantità di numeri iniziali non è una difficoltà certificata.
+A verified first game is ready immediately. **New game** lets you choose Easy, Medium or Hard, a custom eight-board mix, and an optional game code. Types can repeat: board counts must total 8. Positions are shuffled, and repeated types receive distinct instance numbers.
 
-Dal telefono, collegati allo stesso Wi-Fi del PC e apri uno degli indirizzi `Telefono / Phone` stampati nel terminale. Il PC e il server devono rimanere accesi. Se Windows chiede l'accesso alla rete per Node, consenti la rete privata per usare il telefono. Il progetto non è pubblicato online.
+On a phone, join the same Wi-Fi as the computer and open one of the `Phone (same Wi-Fi)` addresses printed in the terminal. Keep the computer and server on. If Windows requests network access for Node, allow the private network to connect from your phone. The project is not published online.
 
-## Comandi
+## Controls
 
-- Seleziona una cella e usa il tastierino o la tastiera. Le frecce spostano la selezione.
-- **Ingrandisci sudoku** mostra una griglia; tocca un nome nell'elenco per cambiarla. **Schema completo** mostra tutte le sovrapposizioni. I controlli + e − aumentano lo zoom; scorri la griglia per spostarti.
-- Ogni sudoku ha nome e pulsante **Regole**, nello schema completo e nell'elenco. Una cella condivisa ha un solo valore e rispetta entrambi i sudoku.
-- **Appunti** (N), **Cancella** (Backspace/Delete), **Annulla** (Ctrl/Cmd+Z), **Ripristina** (Ctrl/Cmd+Shift+Z).
-- Il controllo predefinito confronta con la soluzione; puoi scegliere solo le violazioni delle regole o disattivarlo. Gli errori vengono mantenuti ed evidenziati per consentire correzione o annullamento.
-- I progressi si salvano automaticamente nello stesso browser: numeri, appunti e tempo. La cronologia di annulla/ripristina vale per la sessione aperta. Nessuna sincronizzazione tra dispositivi.
-- **Mostra soluzione** non sovrascrive la partita; ripremilo per tornare a giocare. **Ricomincia** cancella i progressi dopo conferma.
-- Italiano / English cambia tutti i testi senza modificare la partita e conserva la preferenza.
-- **Stampa** usa lo schema completo. Manifest e service worker permettono installazione e offline nei browser compatibili su localhost o HTTPS, dopo il primo caricamento. Sul telefono tramite indirizzo HTTP del PC si può giocare, ma installazione e offline non sono disponibili.
+- Select a cell and use the number pad or keyboard. Arrow keys move the selection.
+- **Focus on sudoku** enlarges a board and isolates its clue markings, so overlapping cages from repeated types stay readable; tap names in the list to switch. **Full puzzle** shows all overlaps. Use + and − for additional zoom; scroll the board to move around.
+- Every board has a name and **Rules** button beside the full puzzle and in the list. Shared cells have one value and follow both boards' rules.
+- **Notes** (N), **Erase** (Backspace/Delete), **Undo** (Ctrl/Cmd+Z), **Redo** (Ctrl/Cmd+Shift+Z).
+- Checking defaults to comparison with the solution. Choose rule violations only, or turn checking off. Incorrect numbers are kept and highlighted for correction or undo.
+- Entries, notes and time save automatically in this browser. Undo/redo history lasts for the current open session. Devices do not synchronize.
+- **Show solution** does not overwrite your game; press again to return. **Restart** clears progress after confirmation.
+- Italiano / English changes all text without altering the game and remembers your preference.
+- **Print** uses the full puzzle. A manifest and service worker support installation and offline use in compatible browsers on localhost or HTTPS after the first load. Phones can play over the computer's HTTP address, but installation and offline support are unavailable there.
 
-## Generazione
+## Generation
 
-Le varianti sono Classico, Disuguaglianze, Somme, Killer, Consecutivi, X, Regioni irregolari e Offset. Vengono mescolate nelle otto posizioni dell'anello, cambiando i vicini e mantenendo 72 celle condivise.
+Available types are Classic, Inequality, Addition, Killer, Consecutive, X, Irregular and Offset. Choose any mix of eight boards, including eight of the same type. Their ring positions are shuffled while preserving 72 shared cells. Each instance receives its own clues.
 
-Il generatore costruisce una soluzione per la disposizione, crea regioni irregolari connesse e indizi, quindi rimuove numeri solo verificando che la soluzione rimanga unica. Anche i ponti mancanti nel sudoku consecutivo sono vincoli. Nel sudoku somme, due celle blu sommano alla cella arancione sotto; le lettere identificano i gruppi. Le gabbie Killer non consentono ripetizioni.
+The generator constructs a solution for the arrangement, creates connected irregular regions and clues, then removes givens only after checking uniqueness. Missing consecutive bridges also impose constraints. In Addition Sudoku, two blue cells add up to the orange cell underneath; letters identify groups. Killer cages do not allow repetitions.
 
-La generazione usa un Web Worker per lasciare reattiva l'interfaccia. Puoi annullarla senza perdere la partita. La ricerca ha limiti di calcolo: in caso di fallimento puoi riprovare, conservando lo schema attuale. Lo stesso codice riproduce la partita nella stessa versione del generatore.
+Generation uses a Web Worker to keep the interface responsive. Cancel without losing your game. Searches have computation limits: if generation fails, retry while preserving the current puzzle. Reproducing a puzzle requires the same game code, board mix, difficulty and generator version.
 
-`Supersudoku.webp` è un riferimento alle varianti e non viene servita dall'app. Il generatore crea nuovi indizi e regioni, senza trascrivere la foto. Crediti riportati nell'immagine: Carykh e Yessoan.
+`Supersudoku.webp` is a reference for the variants and is not served by the app. The generator creates fresh clues and regions rather than transcribing the photo. Image credits: Carykh and Yessoan.
 
-## Verifica e sviluppo
+## Checks and development
 
 ```powershell
 node --test
 node scripts/check.js
 ```
 
-Per i test nel browser, dipendenze, cache e browser restano nel progetto:
+For browser tests, dependencies, caches and browsers stay inside the project:
 
 ```powershell
 npm.cmd ci --cache .cache/npm
@@ -56,8 +56,24 @@ node node_modules/playwright/cli.js install chromium
 npm.cmd run test:e2e
 ```
 
-Playwright verifica desktop e telefono simulato: inserimento, errori, cambio lingua, salvataggio, nuova partita, completamento e offline. La simulazione usa Chromium e non sostituisce una prova su Safari/iOS reale. I test avviano e arrestano il loro server sulla porta 5173: ferma il server di gioco prima di eseguirli.
+Playwright checks desktop and a simulated phone: entry, errors, language changes, saving, generation, completion and offline use. Phone simulation uses Chromium and does not replace real Safari/iOS testing. Tests start and stop their own server on port 5173; stop your game server first.
 
-`node scripts/create-starter.js` rigenera la prima partita in `data/starter.json`. `src/i18n.js` centralizza i testi visibili in entrambe le lingue; gli errori tecnici del motore sono diagnostica interna.
+`node scripts/create-starter.js` regenerates the first game in `data/starter.json`. `src/i18n.js` centralizes visible text in both languages; engine errors are internal developer diagnostics.
 
-Non sono ancora implementati suggerimenti logici e difficoltà classificata con tecniche umane. Il salvataggio richiede che il browser consenta l'archiviazione locale.
+Logical hints are not implemented yet. Saving requires the browser to allow local storage.
+
+## Difficulty selection
+
+Difficulty is relative to the techniques implemented by the engine, not a certified rating of human solving effort:
+
+- **Easy**: solvable using single candidates, elimination of placed digits, and local deductions from variant constraints.
+- **Medium**: also requires hidden singles in nine-cell groups.
+- **Hard**: supported deductions cannot finish the puzzle; the solver must search. A human may be able to use other logical techniques not implemented here.
+
+The generator checks the requested category and uniqueness; the label is not assigned from the number of blanks alone. Some seeds and board mixes may not produce the requested category within the search limits. The app reports this and preserves the previous game rather than silently downgrading the level. This is particularly relevant for mixes with very strong variant clues.
+
+Existing saved games remain compatible. The lower-level generation API retains the optional `blanks` argument for developer tooling; the app uses the checked `difficulty` option.
+
+## Repository language
+
+Use English for the main README, code identifiers, comments, commit messages, issues and pull requests. Keep user-facing application strings in both language catalogs. Italian documentation belongs in `README.it.md`.

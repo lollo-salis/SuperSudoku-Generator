@@ -113,7 +113,7 @@ export function conflicts(model, values) {
 }
 
 /** Bounded solution enumeration supports uniqueness checks (limit = 2). */
-export function solve(model, givens = {}, { limit = 2, maxNodes = 1_000_000, random } = {}) {
+export function solve(model, givens = {}, { limit = 2, maxNodes = 1_000_000, random, hiddenSingles = true, allowSearch = true } = {}) {
   if (!Number.isInteger(limit) || limit < 1 || !Number.isInteger(maxNodes) || maxNodes < 1) {
     throw new Error('Positive integer search limits required');
   }
@@ -146,6 +146,7 @@ export function solve(model, givens = {}, { limit = 2, maxNodes = 1_000_000, ran
         if ((mask & mask - 1) === 0) for (const j of peers[i]) if (!narrow(j, ~mask)) return false;
       }
       for (const rule of unique) {
+        if (!hiddenSingles) continue;
         if (rule.cells.length !== 9) continue;
         for (let n = 1; n <= 9; n++) {
           const bit = 1 << n;
@@ -204,6 +205,7 @@ export function solve(model, givens = {}, { limit = 2, maxNodes = 1_000_000, ran
       if (!conflicts(model, solution).length) solutions.push(solution);
       return;
     }
+    if (!allowSearch) return;
     const candidates = bits(domains[chosen]);
     if (random) for (let i = candidates.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1));

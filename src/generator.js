@@ -1,5 +1,6 @@
 import { createLayout, seededRandom, createSeed } from './layout.js';
 import { cellId, createModel, conflicts, solve } from './engine.js';
+import { rateDifficulty, DIFFICULTIES } from './difficulty.js';
 
 const positions = Array.from({ length: 81 }, (_, i) => [Math.floor(i / 9), i % 9]);
 const regularRegions = () => positions.map(([r, c]) => Math.floor(r / 3) * 3 + Math.floor(c / 3));
@@ -100,13 +101,16 @@ function cluesFor(board, solution, random) {
 }
 
 /** Every released puzzle is checked for a full valid solution and uniqueness. */
-export function generatePuzzle({ seed = createSeed(), blanks = 320, onProgress = () => {} } = {}) {
+export function generatePuzzle({ seed = createSeed(), blanks = 320, difficulty, variants, onProgress = () => {} } = {}) {
   if (!Number.isInteger(blanks) || blanks < 1 || blanks > 480) throw new Error('Invalid blank count');
+  if (difficulty !== undefined && !DIFFICULTIES.includes(difficulty)) throw new Error('Invalid difficulty');
+  // Validate the recipe before running an expensive search.
+  createLayout({ seed, variants });
   const random = seededRandom(`${seed}:digits`);
   let boards, solution;
   for (let attempt = 0; attempt < 12; attempt++) {
     onProgress({ stage: 'solution', current: attempt, total: 12 });
-    boards = createLayout({ seed: `${seed}:layout:${attempt}` });
+    boards = createLayout({ seed: `${seed}:layout:${attempt}`, variants });
     const base = boards.map(b => b.variant === 'irregular' ? { ...b, variant: 'classic' } : b);
     const result = solve(createModel(base), {}, { limit: 1, maxNodes: 5000, random });
     solution = result.solutions[0];
@@ -118,16 +122,28 @@ export function generatePuzzle({ seed = createSeed(), blanks = 320, onProgress =
   if (conflicts(model, solution).length) throw new Error('Generated solution violates a rule');
   const givens = { ...solution };
   let removed = 0;
+  const target = difficulty ? { easy: 300, medium: 340, hard: 380 }[difficulty] : blanks;
+  let rating;
   for (const id of shuffle([...model.cells.keys()], random)) {
     const digit = givens[id];
     delete givens[id];
     const check = solve(model, givens, { maxNodes: 100 });
-    if (!check.unique) givens[id] = digit;
-    else removed++;
-    if (removed % 16 === 0) onProgress({ stage: 'clues', current: removed, total: blanks });
-    if (removed >= blanks) break;
+    if (!check.unique) { givens[id] = digit; continue; }
+    const candidate = difficulty ? rateDifficulty(model, givens) : undefined;
+    if (difficulty && DIFFICULTIES.indexOf(candidate.level) > DIFFICULTIES.indexOf(difficulty)) {
+      givens[id] = digit; continue;
+    }
+    removed++; rating = candidate;
+    if (removed % 16 === 0) onProgress({ stage: 'clues', current: removed, total: 576 });
+    if (removed >= target && (!difficulty || rating.level === difficulty)) break;
+  }
+  rating ??= rateDifficulty(model, givens);
+  if (difficulty && rating.level !== difficulty) {
+    const error = new Error('The requested difficulty is unavailable for this seed and recipe');
+    error.code = 'DIFFICULTY_UNAVAILABLE';
+    throw error;
   }
   const verified = solve(model, givens, { maxNodes: 5000 });
   if (!verified.unique) throw new Error('Puzzle uniqueness could not be verified');
-  return { version: 1, seed: String(seed), boards, givens, solution, blanks: removed };
+  return { version: 1, generatorVersion: 2, seed: String(seed), boards, givens, solution, blanks: removed, difficulty: rating.level, rating };
 }

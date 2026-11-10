@@ -5,7 +5,6 @@ export class Game {
   constructor(puzzle) {
     if (puzzle?.version !== 1 || puzzle.boards?.length !== 8 ||
         new Set(puzzle.boards.map(b => b.id)).size !== 8 ||
-        new Set(puzzle.boards.map(b => b.variant)).size !== 8 ||
         puzzle.boards.some(b => !Object.hasOwn(VARIANTS, b.variant))) throw new Error('Invalid puzzle');
     this.puzzle = structuredClone(puzzle);
     this.model = createModel(this.puzzle.boards);

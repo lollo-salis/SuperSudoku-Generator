@@ -25,7 +25,7 @@ server.listen(port, host, () => {
   console.log(`SuperSudoku: http://localhost:${port}`);
   for (const addresses of Object.values(networkInterfaces())) for (const address of addresses ?? []) {
     if (address.family === 'IPv4' && !address.internal && !address.address.startsWith('169.254.')) {
-      console.log(`Telefono / Phone (stesso Wi-Fi / same Wi-Fi): http://${address.address}:${port}`);
+      console.log(`Phone (same Wi-Fi): http://${address.address}:${port}`);
     }
   }
 });

@@ -1,32 +1,63 @@
-# SuperSudoku Generator
+﻿# SuperSudoku Generator
 
-Progetto di un'app per generare e risolvere supersudoku da telefono e PC, ispirato a `Supersudoku.webp`.
+App locale per generare e risolvere supersudoku da PC e telefono: otto varianti, 576 celle, sovrapposizioni e soluzione unica verificata.
 
-## Stato
+[English documentation](README.en.md)
 
-Prima base del motore, senza dipendenze esterne. L'interfaccia e il generatore non sono ancora implementati.
+## Prima partita
 
-- Otto griglie 9 × 9 disposte ad anello su un'area di 33 × 33 posizioni.
-- 576 celle effettive, di cui 72 condivise tra due griglie.
-- Vincoli per righe, colonne, regioni, diagonali, offset, disuguaglianze, somme e consecutività.
-- Risolutore con limite di ricerca e verifica di unicità tramite ricerca di una seconda soluzione.
-- Le regioni irregolari richiedono una mappa esplicita: nessuna sostituzione automatica con riquadri normali.
+Richiede Node.js 22 o successivo. Dal terminale aperto nella cartella Supersudoku:
 
-La trascrizione delle regioni irregolari e dei vincoli illustrati nella foto resta da completare. Le somme supportano per ora un obiettivo numerico fisso; la relazione tra zone colorate dell'Addition Sudoku richiede una modellazione dedicata. Il modello completo non è ancora pronto per generare partite.
+```powershell
+node server.js
+```
 
-## Verifica
+Apri **http://localhost:5173**. Non occorre installare dipendenze per giocare. Mantieni aperto il terminale; Ctrl+C arresta il server.
 
-Richiede Node.js 22 o successivo. Dalla cartella del progetto:
+La prima partita è già pronta e verificata. **Nuova partita** genera un nuovo schema: scegli 320 o 400 caselle vuote e, facoltativamente, un codice per riprodurlo. La quantità di numeri iniziali non è una difficoltà certificata.
+
+Dal telefono, collegati allo stesso Wi-Fi del PC e apri uno degli indirizzi `Telefono / Phone` stampati nel terminale. Il PC e il server devono rimanere accesi. Se Windows chiede l'accesso alla rete per Node, consenti la rete privata per usare il telefono. Il progetto non è pubblicato online.
+
+## Comandi
+
+- Seleziona una cella e usa il tastierino o la tastiera. Le frecce spostano la selezione.
+- **Ingrandisci sudoku** mostra una griglia; tocca un nome nell'elenco per cambiarla. **Schema completo** mostra tutte le sovrapposizioni. I controlli + e − aumentano lo zoom; scorri la griglia per spostarti.
+- Ogni sudoku ha nome e pulsante **Regole**, nello schema completo e nell'elenco. Una cella condivisa ha un solo valore e rispetta entrambi i sudoku.
+- **Appunti** (N), **Cancella** (Backspace/Delete), **Annulla** (Ctrl/Cmd+Z), **Ripristina** (Ctrl/Cmd+Shift+Z).
+- Il controllo predefinito confronta con la soluzione; puoi scegliere solo le violazioni delle regole o disattivarlo. Gli errori vengono mantenuti ed evidenziati per consentire correzione o annullamento.
+- I progressi si salvano automaticamente nello stesso browser: numeri, appunti e tempo. La cronologia di annulla/ripristina vale per la sessione aperta. Nessuna sincronizzazione tra dispositivi.
+- **Mostra soluzione** non sovrascrive la partita; ripremilo per tornare a giocare. **Ricomincia** cancella i progressi dopo conferma.
+- Italiano / English cambia tutti i testi senza modificare la partita e conserva la preferenza.
+- **Stampa** usa lo schema completo. Manifest e service worker permettono installazione e offline nei browser compatibili su localhost o HTTPS, dopo il primo caricamento. Sul telefono tramite indirizzo HTTP del PC si può giocare, ma installazione e offline non sono disponibili.
+
+## Generazione
+
+Le varianti sono Classico, Disuguaglianze, Somme, Killer, Consecutivi, X, Regioni irregolari e Offset. Vengono mescolate nelle otto posizioni dell'anello, cambiando i vicini e mantenendo 72 celle condivise.
+
+Il generatore costruisce una soluzione per la disposizione, crea regioni irregolari connesse e indizi, quindi rimuove numeri solo verificando che la soluzione rimanga unica. Anche i ponti mancanti nel sudoku consecutivo sono vincoli. Nel sudoku somme, due celle blu sommano alla cella arancione sotto; le lettere identificano i gruppi. Le gabbie Killer non consentono ripetizioni.
+
+La generazione usa un Web Worker per lasciare reattiva l'interfaccia. Puoi annullarla senza perdere la partita. La ricerca ha limiti di calcolo: in caso di fallimento puoi riprovare, conservando lo schema attuale. Lo stesso codice riproduce la partita nella stessa versione del generatore.
+
+`Supersudoku.webp` è un riferimento alle varianti e non viene servita dall'app. Il generatore crea nuovi indizi e regioni, senza trascrivere la foto. Crediti riportati nell'immagine: Carykh e Yessoan.
+
+## Verifica e sviluppo
 
 ```powershell
 node --test
-node --check src/engine.js
+node scripts/check.js
 ```
 
-## Passi successivi
+Per i test nel browser, dipendenze, cache e browser restano nel progetto:
 
-1. Completare la trascrizione delle regole e verificare una soluzione completa delle otto griglie.
-2. Costruire una griglia giocabile con zoom, tastierino, appunti e segnalazione degli errori.
-3. Aggiungere generazione con soluzione unica, salvataggio locale, annulla/ripristina e supporto PWA.
+```powershell
+npm.cmd ci --cache .cache/npm
+$env:PLAYWRIGHT_BROWSERS_PATH = Join-Path (Get-Location) '.cache/browsers'
+node node_modules/playwright/cli.js install chromium
+npm.cmd run test:e2e
+```
 
-L'immagine è un riferimento: prima di distribuirla con l'app occorre verificare i diritti di utilizzo. Gli autori indicati nell'immagine sono Carykh e Yessoan.
+Playwright verifica desktop e telefono simulato: inserimento, errori, cambio lingua, salvataggio, nuova partita, completamento e offline. La simulazione usa Chromium e non sostituisce una prova su Safari/iOS reale. I test avviano e arrestano il loro server sulla porta 5173: ferma il server di gioco prima di eseguirli.
+
+`node scripts/create-starter.js` rigenera la prima partita in `data/starter.json`. `src/i18n.js` centralizza i testi visibili in entrambe le lingue; gli errori tecnici del motore sono diagnostica interna.
+
+Non sono ancora implementati suggerimenti logici e difficoltà classificata con tecniche umane. Il salvataggio richiede che il browser consenta l'archiviazione locale.

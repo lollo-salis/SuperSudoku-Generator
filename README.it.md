@@ -10,6 +10,8 @@ Questo progetto nasce dall'ispirazione del **Super Sudoku** mostrato qui sotto: 
 
 L'immagine è inclusa come riferimento al loro lavoro, con i crediti originali. Il codice di questo progetto genera nuovi rompicapi, con composizioni configurabili e tipi ripetuti. Il rompicapo della foto non è la partita iniziale dell'app: questa è un'implementazione indipendente.
 
+L'immagine di riferimento **non è coperta dalla licenza MIT di questo progetto**. Il permesso di redistribuirla non è stato verificato; vedi le [note sui materiali di terzi](THIRD_PARTY_NOTICES.md).
+
 <details>
 <summary>Mostra il sudoku di riferimento — creato da Carykh, rinumerato da Yessoan</summary>
 
@@ -88,3 +90,9 @@ La classificazione è relativa alle tecniche implementate dal motore, non è una
 Il generatore verifica il livello richiesto e l'unicità: il livello non dipende soltanto dal numero di celle vuote. Alcune combinazioni di varianti e codice possono non produrre il livello richiesto entro i limiti di ricerca. In questo caso l'app lo segnala e mantiene la partita precedente, senza abbassare silenziosamente il livello.
 
 Per riprodurre una partita usa lo stesso codice, la stessa composizione, la stessa difficoltà e la stessa versione del generatore. Le partite già salvate restano compatibili.
+
+## Licenza
+
+Il codice sorgente e la documentazione originali sono disponibili con [licenza MIT](LICENSE). Puoi usarli, modificarli e redistribuirli, anche a fini commerciali, conservando l'avviso di copyright e la licenza. Il software è fornito senza garanzie.
+
+I materiali di terzi, inclusa l'immagine di riferimento, sono esclusi da questa concessione e conservano i rispettivi termini. Vedi [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

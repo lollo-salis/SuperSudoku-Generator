@@ -10,6 +10,8 @@ This project was inspired by the **Super Sudoku** puzzle shown below: eight over
 
 The image is included as an attributed reference to their work. This project's code generates fresh puzzles, with configurable variant mixes and repeated types. The reference puzzle itself is not the app's starting game, and this project is an independent implementation.
 
+The reference image is **not covered by this project's MIT license**. Permission to redistribute it has not been verified; see [third-party notices](THIRD_PARTY_NOTICES.md).
+
 <details>
 <summary>View the inspiration puzzle — created by Carykh, re-numbered by Yessoan</summary>
 
@@ -92,3 +94,9 @@ Existing saved games remain compatible. The lower-level generation API retains t
 ## Repository language
 
 Use English for the main README, code identifiers, comments, commit messages, issues and pull requests. Keep user-facing application strings in both language catalogs. Italian documentation belongs in `README.it.md`.
+
+## License
+
+The original source code and documentation are available under the [MIT License](LICENSE). You may use, modify and redistribute them, including commercially, while retaining the copyright and license notice. The software is provided without warranty.
+
+Third-party materials, including the reference image, are excluded from this grant and retain their respective terms. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

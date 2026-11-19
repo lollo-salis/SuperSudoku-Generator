@@ -1,5 +1,6 @@
 /* Mobile overrides are isolated to preserve the desktop layout. */
 .mobile-only { display: none; }
+#install-dialog .dialog-actions { flex-wrap: wrap; }
 
 @media (max-width: 740px), (max-width: 1000px) and (pointer: coarse) {
   :root { --keypad-height: 0px; }

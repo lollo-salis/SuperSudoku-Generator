@@ -71,7 +71,7 @@ export function enableMobileButtons(enabled) {
   let press;
   document.addEventListener('touchstart', event => {
     const button = event.target.closest('button');
-    if (!enabled() || event.touches.length !== 1 || !button || button.disabled) { press = undefined; return; }
+    if (!enabled() || event.touches.length !== 1 || !button || button.disabled || button.dataset.nativeActivation === 'true') { press = undefined; return; }
     const touch = event.touches[0];
     press = { button, id: touch.identifier, x: touch.clientX, y: touch.clientY };
   }, { passive: true });

@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f6f4ed">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SuperSudoku">
   <title>SuperSudoku Generator</title>
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
@@ -14,7 +17,7 @@
 <body>
   <header class="site-header">
     <a class="brand" href="./" aria-label="SuperSudoku Generator"><span class="brand-mark" aria-hidden="true">S<span>×</span>8</span><span>SUPER<span class="brand-light">SUDOKU</span></span></a>
-    <div class="header-actions"><button class="icon-button" id="help-button" data-i18n="help"></button><label class="language-label"><span data-i18n="language" class="sr-only"></span><select id="language"><option value="it">Italiano</option><option value="en">English</option></select></label><button id="install-button" hidden data-i18n="install"></button><button id="update-button" hidden data-i18n="updateApp"></button></div>
+    <div class="header-actions"><button class="icon-button" id="help-button" data-i18n="help"></button><label class="language-label"><span data-i18n="language" class="sr-only"></span><select id="language"><option value="it">Italiano</option><option value="en">English</option></select></label><button id="install-button" hidden data-native-activation="true" data-i18n="install"></button><button id="update-button" hidden data-i18n="updateApp"></button></div>
   </header>
   <main>
     <section class="page-heading"><div><p class="eyebrow" data-i18n="tagline"></p><h1 class="desktop-heading" data-i18n="intro"></h1><h1 class="mobile-only" data-i18n="play"></h1></div><button class="primary" id="new-game" data-i18n="newGame" disabled></button></section>
@@ -36,6 +39,13 @@
   </main>
   <footer><span>SUPER SUDOKU</span><span data-i18n="tagline"></span></footer>
   <dialog id="text-dialog"><button class="dialog-close" id="text-close" data-title="close">×</button><p class="eyebrow">SUPER SUDOKU</p><h2 id="dialog-title"></h2><p id="dialog-body"></p><button class="primary" id="dialog-done" data-i18n="close"></button></dialog>
+  <dialog id="install-dialog" aria-labelledby="install-title">
+    <button class="dialog-close" id="install-close" data-title="close">×</button>
+    <p class="eyebrow">SUPER SUDOKU</p><h2 id="install-title" data-i18n="install"></h2>
+    <p id="install-platform-help"></p><p id="install-check" aria-live="polite"></p>
+    <p class="muted" data-i18n="installStorage"></p>
+    <div class="dialog-actions"><button id="install-retry" data-i18n="checkAgain"></button><button class="primary" id="install-native" data-native-activation="true" hidden data-i18n="installNow"></button><button id="install-done" data-i18n="close"></button></div>
+  </dialog>
   <dialog id="new-dialog">
     <button class="dialog-close" id="new-close" data-title="close">×</button>
     <p class="eyebrow" data-i18n="tagline"></p><h2 data-i18n="newGame"></h2><p data-i18n="newGameHint"></p>

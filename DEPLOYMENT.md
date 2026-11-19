@@ -36,6 +36,10 @@ Hosting configuration and local browser checks are included in this repository. 
 - **Android:** open the HTTPS URL in a supporting browser and use Install app or Add to Home screen. The in-app Install app button invokes a native prompt when available and otherwise explains the browser-menu route.
 - **Desktop:** use Install app in a supporting browser's menu/address bar.
 
+The install guide adapts to Android, iOS and desktop. Chrome controls when its native prompt becomes available; the app cannot force that prompt. If it becomes available while the guide is open, **Install now** appears there. A failed or dismissed prompt leaves a usable manual fallback. Installation controls retain the browser's native touch activation.
+
+The guide also checks anonymous access to the manifest, both PNG icon sizes and the service worker. A 401/403 response explains that hosting access protection is blocking these downloads. Being able to play while logged into Netlify does not demonstrate that an external installer can fetch the files. Diagnostics explicitly bypass the app's cache so a cached copy cannot hide the protection. The app cannot remove Netlify's access restrictions.
+
 The app manifest defines standalone display, 192/512 PNG icons, a maskable icon and an Apple touch icon. Browser support and menu wording vary. The initial download needs connectivity; subsequent offline use requires the successful first cache.
 
 ## Saves and updates

@@ -2,12 +2,14 @@
 const CACHE = 'supersudoku-__BUILD_ID__';
 const ASSETS = ['./', './index.html', './styles.css', './mobile.css', './icon.svg', './manifest.webmanifest', './data/starter.json',
   ...['icon-192.png', 'icon-512.png', 'maskable-512.png', 'apple-touch-icon.png'].map(name => `./icons/${name}`),
-  ...['app', 'engine', 'game', 'generator', 'generator-worker', 'i18n', 'layout', 'difficulty', 'touch-board'].map(name => `./src/${name}.js`)];
+  ...['app', 'engine', 'game', 'generator', 'generator-worker', 'i18n', 'layout', 'difficulty', 'touch-board', 'install'].map(name => `./src/${name}.js`)];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS))));
 self.addEventListener('message', event => { if (event.data?.type === 'ACTIVATE_UPDATE') self.skipWaiting(); });
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('supersudoku-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
+  // Installation diagnostics must see the actual host's anonymous response, not a cached copy.
+  if (event.request.cache === 'no-store') { event.respondWith(fetch(event.request)); return; }
   event.respondWith(caches.open(CACHE).then(async cache => {
     // Unbuilt local development stays network-first so source edits appear on reload.
     if (CACHE.includes('_')) {

@@ -3,6 +3,7 @@ import { translate, resolveLocale, variantInfo } from './i18n.js';
 import { cellId } from './engine.js';
 import { Game, serializeGame, deserializeGame } from './game.js';
 import { enableTouchBoard, enableMobileButtons } from './touch-board.js';
+import { installPlatform, checkInstallAccess } from './install.js';
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
@@ -107,6 +108,7 @@ function localize() {
   for (const element of document.querySelectorAll('[data-variant-name]')) element.textContent = variantInfo(element.dataset.variantName, locale).name;
   updateRecipe(); updateDifficulty();
   if (offlineStatus) $('offline-status').textContent = t(offlineStatus);
+  syncInstallUI();
   if (dialogContent) fillTextDialog();
   if (game) render();
 }
@@ -313,7 +315,7 @@ document.addEventListener('click', event => {
   else if (board) focusBoard(board.dataset.board);
 });
 document.addEventListener('keydown', event => {
-  if (event.target.matches('input, select, textarea') || $('text-dialog').open || $('new-dialog').open) return;
+  if (event.target.matches('input, select, textarea') || $('text-dialog').open || $('new-dialog').open || $('install-dialog').open) return;
   if ((event.key === 'Enter' || event.key === ' ') && event.target.closest('[data-board], [data-rules]')) {
     event.preventDefault(); event.target.closest('[data-board], [data-rules]').dispatchEvent(new MouseEvent('click', { bubbles: true })); return;
   }
@@ -436,7 +438,7 @@ $('generate-form').onsubmit = event => {
 
 setInterval(() => {
   const now = Date.now();
-  if (game && !game.completed && !document.hidden && !solutionVisible && !$('new-dialog').open && !$('text-dialog').open) elapsed += Math.min((now - lastTick) / 1000, 2);
+  if (game && !game.completed && !document.hidden && !solutionVisible && !$('new-dialog').open && !$('text-dialog').open && !$('install-dialog').open) elapsed += Math.min((now - lastTick) / 1000, 2);
   lastTick = now;
   const seconds = Math.floor(elapsed);
   $('timer').textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
@@ -445,14 +447,56 @@ setInterval(() => {
 setInterval(() => { if (game && !document.hidden) save(); }, 15000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); lastTick = Date.now(); });
 window.addEventListener('pagehide', save);
-let installPrompt;
-const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPrompt = event; $('install-button').hidden = false; });
-$('install-button').onclick = async () => {
-  if (typeof installPrompt?.prompt === 'function') { await installPrompt.prompt(); installPrompt = undefined; }
-  else showRules('install');
+let installPrompt, installStatus, installBusy = false, installCheckId = 0, installedHere = false;
+const standalone = () => installedHere || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+function syncInstallUI() {
+  const nativeAvailable = typeof installPrompt?.prompt === 'function';
+  $('install-button').hidden = standalone();
+  $('install-button').disabled = installBusy;
+  $('install-native').hidden = !nativeAvailable || standalone();
+  $('install-native').disabled = installBusy;
+  const platform = installPlatform(navigator);
+  $('install-platform-help').textContent = t(platform === 'android' ? 'installAndroid' : platform === 'ios' ? 'installIos' : 'installDesktop');
+  const status = nativeAvailable ? 'installReady' : installStatus;
+  $('install-check').textContent = status ? t(status) : '';
 };
-window.addEventListener('appinstalled', () => { installPrompt = undefined; $('install-button').hidden = true; });
+async function checkInstallation() {
+  const id = ++installCheckId;
+  if (!window.isSecureContext) { installStatus = 'installInsecure'; syncInstallUI(); return; }
+  installStatus = 'installChecking'; syncInstallUI();
+  const result = await checkInstallAccess(location.href);
+  if (id !== installCheckId) return;
+  installStatus = { ready: 'installManual', protected: 'installProtected', unavailable: 'installUnavailable' }[result];
+  syncInstallUI();
+}
+function openInstallGuide(status) {
+  closeKeypad(); installStatus = status; syncInstallUI();
+  if (!$('install-dialog').open) $('install-dialog').showModal();
+  if (!status) checkInstallation();
+}
+async function attemptInstall() {
+  if (installBusy || standalone()) return;
+  if (typeof installPrompt?.prompt !== 'function') { openInstallGuide(); return; }
+  const prompt = installPrompt; installPrompt = undefined; installBusy = true; syncInstallUI();
+  try {
+    // Call directly in the user activation handler, before any async diagnostics.
+    const result = await prompt.prompt();
+    const choice = result?.outcome ?? (await prompt.userChoice)?.outcome;
+    if (choice === 'dismissed') openInstallGuide('installDismissed');
+    else if ($('install-dialog').open) $('install-dialog').close();
+  } catch { openInstallGuide('installFailed'); }
+  finally { installBusy = false; syncInstallUI(); }
+}
+window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPrompt = event; syncInstallUI(); });
+$('install-button').onclick = $('install-native').onclick = attemptInstall;
+$('install-retry').onclick = checkInstallation;
+$('install-close').onclick = $('install-done').onclick = () => $('install-dialog').close();
+$('install-dialog').addEventListener('close', () => { installCheckId++; });
+window.addEventListener('appinstalled', () => {
+  installedHere = true;
+  installPrompt = undefined; $('install-button').hidden = true;
+  if ($('install-dialog').open) $('install-dialog').close();
+});
 $('update-button').onclick = () => {
   if (!updateRegistration?.waiting || !confirm(t('updateConfirm'))) return;
   save();
@@ -490,7 +534,7 @@ async function boot() {
   }
   activeBoard = game.puzzle.boards[0].id;
   $('new-game').disabled = false;
-  $('install-button').hidden = standalone();
+  syncInstallUI();
   render();
   if (loadFailed) $('save-status').textContent = t('loadFailed');
   prepareOffline();

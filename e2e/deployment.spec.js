@@ -18,8 +18,9 @@ test('manifest icons load and installation instructions are available without a 
     dispatchEvent(event);
   });
   await page.locator('#install-button').click();
-  await expect(page.locator('#dialog-body')).toContainText('Add to Home Screen');
-  await expect(page.locator('#dialog-body')).toContainText('Available offline');
+  await expect(page.locator('#install-dialog')).toBeVisible();
+  await expect(page.locator('#install-check')).toContainText('required files are accessible');
+  await expect(page.locator('#install-dialog')).toContainText('Available offline');
 });
 
 test('offline mode reloads with a query string and generates a fresh puzzle without the server', async ({ page, context }) => {

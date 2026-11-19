@@ -4,6 +4,14 @@ A local app to generate and play supersudokus on computers and phones: eight var
 
 English is the primary language for this repository, documentation, commits and pull requests. [Documentazione italiana](README.it.md) is available as a secondary translation. The game itself supports both Italian and English.
 
+## Online app and installation
+
+The project is ready for static HTTPS hosting on Netlify. Connect this repository's `main` branch; `netlify.toml` sets **build command `npm run build`** and **publish directory `dist`**. Leave the base directory empty. No API keys or runtime server are required.
+
+After deployment, open the Netlify URL and wait for **Available offline**, then use **Install app** or the browser's Add to Home Screen option. On iPhone/iPad, use Safari's Share menu. The installed app can play and generate puzzles without the computer or terminal, including offline after its first successful cache. The real hosted URL and device installation must be checked after deployment.
+
+See [deployment and installation instructions](DEPLOYMENT.md), including update behavior and save limitations. Saves from the old local-network URL do not automatically transfer to the new hosted URL.
+
 ## Inspiration and credits
 
 This project was inspired by the **Super Sudoku** puzzle shown below: eight overlapping sudokus combining different rule sets. The reference image credits **Carykh** as the creator and **Yessoan** for re-numbering the puzzle. Thank you to both for the puzzle that inspired this app.
@@ -33,7 +41,7 @@ A verified first game is ready immediately. **New game** lets you choose Easy, M
 
 On a phone, join the same Wi-Fi as the computer and open one of the `Phone (same Wi-Fi)` addresses printed in the terminal. Keep the computer and server on. If Windows requests network access for Node, allow the private network to connect from your phone. The project is not published online.
 
-**Phone use without the computer or terminal is not deployed yet.** The next step is HTTPS hosting and verification of PWA installation on a real phone. The current local-network address still requires the server above.
+The local-network address requires the server above. To play without that computer, use the HTTPS deployment described in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Controls
 

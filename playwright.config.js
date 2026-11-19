@@ -19,5 +19,5 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 1080 } } },
     { name: 'phone', use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium' } },
   ],
-  webServer: { command: 'node server.js', url: testURL, env: { PORT: String(testPort), HOST: '127.0.0.1' }, reuseExistingServer: false, timeout: 15000 },
+  webServer: { command: 'node server.js', url: testURL, env: { PORT: String(testPort), HOST: '127.0.0.1', SERVE_DIST: process.env.SERVE_DIST || '0' }, reuseExistingServer: false, timeout: 15000 },
 });

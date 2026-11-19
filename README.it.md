@@ -4,6 +4,14 @@ App locale per generare e risolvere supersudoku da PC e telefono: otto varianti,
 
 [English documentation (main)](README.md)
 
+## App online e installazione
+
+Il progetto è pronto per l'hosting statico HTTPS su Netlify. Collega il ramo `main` della repository: `netlify.toml` imposta **build command `npm run build`** e **publish directory `dist`**. Lascia vuota la base directory. Non servono chiavi API o un server in esecuzione sul PC.
+
+Dopo il deploy apri l'indirizzo Netlify e attendi **Disponibile offline**, poi usa **Installa app** o l'opzione del browser per aggiungerla alla schermata Home. Su iPhone/iPad usa il menu Condividi di Safari. Dopo il primo caricamento completo l'app installata può giocare e generare schemi offline, senza PC o terminale. Indirizzo pubblicato e installazione sul dispositivo reale vanno verificati dopo il deploy.
+
+Vedi le [istruzioni di pubblicazione e installazione](DEPLOYMENT.md) in inglese, inclusi aggiornamenti e limiti dei salvataggi. Le partite del vecchio indirizzo locale non si trasferiscono automaticamente al nuovo indirizzo Netlify.
+
 ## Ispirazione e crediti
 
 Questo progetto nasce dall'ispirazione del **Super Sudoku** mostrato qui sotto: otto sudoku sovrapposti che combinano regole diverse. L'immagine attribuisce la creazione a **Carykh** e la rinumerazione del rompicapo a **Yessoan**. Grazie a entrambi per il sudoku da cui è nata l'idea di questa app.
@@ -33,7 +41,7 @@ La prima partita è già pronta e verificata. **Nuova partita** permette di sceg
 
 Dal telefono, collegati allo stesso Wi-Fi del PC e apri uno degli indirizzi `Phone (same Wi-Fi)` stampati nel terminale. Il PC e il server devono rimanere accesi. Se Windows chiede l'accesso alla rete per Node, consenti la rete privata per usare il telefono. Il progetto non è pubblicato online.
 
-**L'uso dal telefono senza PC o terminale non è ancora pubblicato.** Il prossimo passo è l'hosting HTTPS e la verifica dell'installazione PWA su un telefono reale. L'attuale indirizzo di rete locale richiede ancora il server indicato sopra.
+L'indirizzo di rete locale richiede il server indicato sopra. Per giocare senza quel PC usa la pubblicazione HTTPS descritta in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Comandi
 

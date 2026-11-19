@@ -7,6 +7,8 @@
   button { touch-action: manipulation; }
   body { padding-bottom: calc(var(--keypad-height) + env(safe-area-inset-bottom, 0px)); }
   .site-header { height: 58px; padding-top: env(safe-area-inset-top, 0px); }
+  .header-actions { flex-wrap: wrap; justify-content: flex-end; gap: 2px; max-width: 48%; }
+  .header-actions #install-button, .header-actions #update-button { font-size: 10px; padding: 4px 6px; }
   .page-heading { padding: 14px 0; align-items: center; }
   .page-heading .eyebrow, .desktop-heading { display: none; }
   .page-heading h1 { margin: 0; font-size: 24px; letter-spacing: -.5px; }

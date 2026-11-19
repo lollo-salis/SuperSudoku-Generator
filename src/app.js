@@ -15,7 +15,7 @@ const labelPositions = [[22, 1], [-2, 7], [28, 7], [-8, 15], [34, 15], [-2, 24],
 const mobileQuery = matchMedia('(max-width: 740px), (max-width: 1000px) and (pointer: coarse)');
 let locale = 'it', game, selected, activeBoard, pencil = false, view = mobileQuery.matches ? 'focus' : 'overview';
 let zoom = 1, elapsed = 0, errorMode = 'solution', solutionVisible = false, worker, workerTimeout, lastTick = Date.now(), saveProblem = false;
-let dialogContent, keypadOpen = false, revealFrame;
+let dialogContent, keypadOpen = false, revealFrame, offlineStatus, updateRegistration;
 try {
   const settings = JSON.parse(localStorage.getItem('supersudoku.settings') || '{}');
   locale = resolveLocale(settings.locale);
@@ -106,6 +106,7 @@ function localize() {
   for (const element of document.querySelectorAll('[data-placeholder]')) element.placeholder = t(element.dataset.placeholder);
   for (const element of document.querySelectorAll('[data-variant-name]')) element.textContent = variantInfo(element.dataset.variantName, locale).name;
   updateRecipe(); updateDifficulty();
+  if (offlineStatus) $('offline-status').textContent = t(offlineStatus);
   if (dialogContent) fillTextDialog();
   if (game) render();
 }
@@ -296,7 +297,7 @@ function enter(digit) {
   if (game.enter(selected, digit, pencil && digit !== 0)) { save(); render(); }
 }
 function fillTextDialog() {
-  const info = dialogContent === 'help' ? { name: t('help'), rules: t('helpText') } : boardInfo(game.puzzle.boards.find(b => b.id === dialogContent), locale);
+  const info = dialogContent === 'help' ? { name: t('help'), rules: t('helpText') } : dialogContent === 'install' ? { name: t('install'), rules: t('installHelp') } : boardInfo(game.puzzle.boards.find(b => b.id === dialogContent), locale);
   $('dialog-title').textContent = info.name; $('dialog-body').textContent = info.rules;
 }
 function showRules(id) { closeKeypad(); dialogContent = id; fillTextDialog(); $('text-dialog').showModal(); }
@@ -445,8 +446,35 @@ setInterval(() => { if (game && !document.hidden) save(); }, 15000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); lastTick = Date.now(); });
 window.addEventListener('pagehide', save);
 let installPrompt;
+const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPrompt = event; $('install-button').hidden = false; });
-$('install-button').onclick = async () => { if (installPrompt) { await installPrompt.prompt(); installPrompt = undefined; $('install-button').hidden = true; } };
+$('install-button').onclick = async () => {
+  if (typeof installPrompt?.prompt === 'function') { await installPrompt.prompt(); installPrompt = undefined; }
+  else showRules('install');
+};
+window.addEventListener('appinstalled', () => { installPrompt = undefined; $('install-button').hidden = true; });
+$('update-button').onclick = () => {
+  if (!updateRegistration?.waiting || !confirm(t('updateConfirm'))) return;
+  save();
+  if (saveProblem) { $('offline-status').textContent = t('updateSaveFailed'); return; }
+  navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
+  updateRegistration.waiting.postMessage({ type: 'ACTIVATE_UPDATE' });
+};
+async function prepareOffline() {
+  if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+  offlineStatus = 'offlinePreparing'; $('offline-status').textContent = t(offlineStatus);
+  try {
+    const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+    updateRegistration = registration;
+    const announceUpdate = () => { $('update-button').hidden = !registration.waiting; };
+    announceUpdate();
+    registration.addEventListener('updatefound', () => {
+      registration.installing?.addEventListener('statechange', announceUpdate);
+    });
+    await navigator.serviceWorker.ready;
+    offlineStatus = 'offlineReady'; $('offline-status').textContent = t(offlineStatus);
+  } catch { offlineStatus = 'offlineUnavailable'; $('offline-status').textContent = t(offlineStatus); }
+}
 
 async function boot() {
   localize();
@@ -462,8 +490,9 @@ async function boot() {
   }
   activeBoard = game.puzzle.boards[0].id;
   $('new-game').disabled = false;
+  $('install-button').hidden = standalone();
   render();
   if (loadFailed) $('save-status').textContent = t('loadFailed');
-  if ('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('./sw.js').catch(() => {});
+  prepareOffline();
 }
 boot().catch(() => { $('board-mount').textContent = t('startupFailed'); });

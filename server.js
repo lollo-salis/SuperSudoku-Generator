@@ -4,15 +4,15 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { networkInterfaces } from 'node:os';
 
-const root = fileURLToPath(new URL('.', import.meta.url));
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const root = fileURLToPath(new URL(process.env.SERVE_DIST === '1' ? './dist/' : './', import.meta.url));
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 const port = Number(process.env.PORT || 5173);
 const host = process.env.HOST || '0.0.0.0';
 const server = createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
     const relative = pathname === '/' ? 'index.html' : pathname.slice(1);
-    if (relative.split(/[\\/]/).some(p => p.startsWith('.')) || !/^(index\.html|styles\.css|mobile\.css|manifest\.webmanifest|sw\.js|icon\.svg|src\/[\w-]+\.js|data\/starter\.json)$/.test(relative)) {
+    if (relative.split(/[\\/]/).some(p => p.startsWith('.')) || !/^(index\.html|styles\.css|mobile\.css|manifest\.webmanifest|sw\.js|icon\.svg|LICENSE|icons\/[\w-]+\.png|src\/[\w-]+\.js|data\/starter\.json)$/.test(relative)) {
       res.writeHead(404); res.end('Not found'); return;
     }
     const target = path.resolve(root, relative);

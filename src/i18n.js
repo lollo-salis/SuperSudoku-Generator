@@ -66,6 +66,11 @@ const definitions = {
       unrated: 'Non classificata',
       numericKeypad: 'Tastierino numerico', hideKeypad: 'Nascondi tastierino',
       touchHint: 'Due dita per zoomare · Trascina per spostarti',
+      installHelp: 'Su iPhone o iPad, apri il sito in Safari e scegli Condividi → Aggiungi alla schermata Home. Su Android o PC usa Installa app nel menu del browser. Dopo il primo caricamento attendi «Disponibile offline». I salvataggi restano su questo dispositivo; la versione installata può usare un archivio separato dal browser.',
+      offlinePreparing: 'Preparazione per l’uso offline…', offlineReady: 'Disponibile offline',
+      offlineUnavailable: 'Modalità offline non disponibile in questa sessione.',
+      updateApp: 'Aggiorna app', updateConfirm: 'È disponibile una nuova versione. Salvare la partita e ricaricare adesso?',
+      updateSaveFailed: 'La partita non è stata salvata. Aggiornamento annullato: riprova quando il salvataggio è disponibile.',
     },
   },
   en: {
@@ -132,6 +137,11 @@ const definitions = {
       unrated: 'Not rated',
       numericKeypad: 'Number keypad', hideKeypad: 'Hide keypad',
       touchHint: 'Pinch to zoom · Drag to move',
+      installHelp: 'On iPhone or iPad, open this site in Safari and choose Share → Add to Home Screen. On Android or desktop, use Install app in the browser menu. After the first load, wait for “Available offline”. Saves stay on this device; the installed app may use storage separate from the browser.',
+      offlinePreparing: 'Preparing for offline use…', offlineReady: 'Available offline',
+      offlineUnavailable: 'Offline mode is unavailable in this session.',
+      updateApp: 'Update app', updateConfirm: 'A new version is ready. Save your game and reload now?',
+      updateSaveFailed: 'Your game could not be saved. The update was cancelled; retry when saving is available.',
     },
   },
 };
